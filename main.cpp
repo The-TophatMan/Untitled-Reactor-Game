@@ -80,22 +80,6 @@ int main(int argc, char *argv[])
     consoleLog.log("Still alive");
     exit(12112007);
   }
-  try
-  {
-    try
-    {
-      throw Exception("Help", "TRY(1)", -1, 0);
-    }
-    catch (Exception &e)
-    {
-      e << "TRY(2)";
-      throw e;
-    }
-  }
-  catch (Exception &e)
-  {
-    e << "MAIN";
-    consoleLog.log(e);
-  }
+
   exit(0);
 }
