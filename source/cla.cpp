@@ -1,10 +1,9 @@
-#include "cla.h"
+#include "../include/cla.h"
+#include <utility>
 
 CLA_Handler::CLA_Handler() {}
 
-void CLA_Handler::addArgument(
-  const std::string argument,
-  const std::function<void(const std::string&)>& func) {
+void CLA_Handler::addArgument(const std::string argument, const std::function<void(const std::string&, void*)>& func, void* extradata) {
   std::string finalArg = argument;
   if (argument[0] == '-')
     finalArg = argument.substr(1);
@@ -18,7 +17,7 @@ void CLA_Handler::addArgument(
       throw Exception("Attempted to add argument " + finalArg +
         " that already exists",
         "CLA_Handler::addArgument", -1, 0);
-    sca.insert(make_pair(finalArg[0], func));
+    sca.insert(make_pair(finalArg[0], make_pair(func, extradata)));
   }
   else {
     auto it = mca.find(finalArg);
@@ -26,21 +25,18 @@ void CLA_Handler::addArgument(
       throw Exception("Attempted to add argument " + finalArg +
         " that already exists",
         "CLA_Handler::addArgument", -1, 0);
-    mca.insert(make_pair(finalArg, func));
+    mca.insert(make_pair(finalArg, make_pair(func, extradata)));
   }
 }
 
-void CLA_Handler::addnoargArgument(
-  std::function<void(const std::string&)>& func) {
-  if (noargArgument)
+void CLA_Handler::addnoargArgument(std::function<void(const std::string&, void*)>& func, void* extradata) {
+  if (noargArgument.first)
     throw Exception("Attempted to add noargArgument, but it already exists",
       "CLA_Handler::addnoargArgument", -1, 0);
-  noargArgument = func;
+  noargArgument = make_pair(func, extradata);
 }
 
-void CLA_Handler::modifyArgument(
-  const std::string argument,
-  const std::function<void(const std::string&)>& newFunc) {
+void CLA_Handler::modifyArgument(const std::string argument, const std::function<void(const std::string&, void*)>& newFunc) {
   std::string finalArg = argument;
   if (argument[0] == '-')
     finalArg = argument.substr(1);
@@ -54,7 +50,7 @@ void CLA_Handler::modifyArgument(
       throw Exception("Could not modify argument " + finalArg +
         ", argument does not exist",
         "CLA_Handler::modifyArgument.1", -1, 0);
-    it->second = newFunc;
+    it->second.first = newFunc;
   }
   else {
     auto it = mca.find(finalArg);
@@ -62,12 +58,11 @@ void CLA_Handler::modifyArgument(
       throw Exception("Could not modify argument" + finalArg +
         ", argument does not exist",
         "CLA_Handler::modifyArgument.1", -1, 0);
-    it->second = newFunc;
+    it->second.first = newFunc;
   }
 }
 
-void CLA_Handler::modifyArgument(const std::string oldArg,
-  const std::string newArg) {
+void CLA_Handler::modifyArgument(const std::string oldArg, const std::string newArg) {
   std::string finaloldArg = oldArg, finalnewArg = newArg;
   if (oldArg[0] == '-')
     finaloldArg = oldArg.substr(1);
@@ -87,8 +82,7 @@ void CLA_Handler::modifyArgument(const std::string oldArg,
       throw Exception("Could not modify argument " + finaloldArg +
         ", argument does not exist",
         "CLA_Handler::modifyArgument.2", -1, 0);
-    std::function<void(const std::string&)> func =
-      it->second; // Save the associated function
+    std::pair<std::function<void(const std::string&, void*)>, void*> func = it->second; // Save the associated function
     if (finalnewArg.size() != 1) {
       auto dup = mca.find(finalnewArg);
       if (dup != mca.end())
@@ -107,7 +101,7 @@ void CLA_Handler::modifyArgument(const std::string oldArg,
       throw Exception("Could not modify argument " + finaloldArg +
         ", argument does not exist",
         "CLA_Handler::modifyArgument.2", -1, 0);
-    std::function<void(const std::string&)> func = it->second;
+    std::pair<std::function<void(const std::string&, void*)>, void*> func = it->second;
     if (finalnewArg.size() == 1) {
       auto dup = sca.find(finalnewArg[0]);
       if (dup != sca.end())
@@ -132,9 +126,9 @@ void CLA_Handler::cycleArguments(const int argc, const char** argv) {
           std::cout << "Unknown argument " << slimArg << std::endl;
         else {
           if (argv[i + 1][0] == '-')
-            it->second(nullptr);
+            it->second.first(nullptr, it->second.second);
           else {
-            it->second(argv[i + 1]);
+            it->second.first(argv[i + 1], it->second.second);
             i++;
           }
         }
@@ -145,16 +139,16 @@ void CLA_Handler::cycleArguments(const int argc, const char** argv) {
           std::cout << "Unknown argument " << argv[i][1] << std::endl;
         else {
           if (argv[i + 1][0] == '-')
-            it->second(nullptr);
+            it->second.first(nullptr, it->second.second);
           else {
-            it->second(argv[i + 1]);
+            it->second.first(argv[i + 1], it->second.second);
             i++;
           }
         }
       }
     }
-    else if (!noargArg && noargArgument) {
-      noargArgument(argv[i]);
+    else if (!noargArg && noargArgument.first) {
+      noargArgument.first(argv[i], noargArgument.second);
       noargArg = true;
     }
     else {
