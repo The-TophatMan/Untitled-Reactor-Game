@@ -116,31 +116,42 @@ public:
   const bool isRunning(bool* returnval = nullptr);
 
   /**
- * @brief Replaces the current SDL_Renderer with a new one.
- *
- * This function destroys the existing renderer and assigns a new renderer
- * to the `renderer` member variable. If the destruction of the existing
- * renderer fails or the new renderer is null, an exception is thrown.
- *
- * @param newRenderer A pointer to the new SDL_Renderer to replace the current one.
- * @return true if the renderer was successfully replaced.
- * @throws Exception if the previous renderer could not be destroyed or if the
- *         new renderer pointer is null.
- */
+   * @brief Replaces the current SDL_Renderer with a new one.
+   *
+   * This function attempts to replace the current renderer with a new renderer.
+   * If the operation fails at any step, it ensures the old renderer is restored
+   * to its previous state and throws an exception with detailed error information.
+   *
+   * @param newRenderer A pointer to the new SDL_Renderer to replace the current one.
+   * @return true if the renderer was successfully replaced.
+   * @throws Exception if:
+   *         - The old renderer cannot be saved to a temporary location.
+   *         - The new renderer cannot replace the old renderer.
+   *         - The old renderer cannot be restored after a failure.
+   *         - The old renderer cannot be destroyed, potentially causing memory leaks.
+   *
+   * @note The function uses exception handling to manage errors and ensure
+   *       the integrity of the renderer state.
+   */
   const bool replaceRenderer(SDL_Renderer* newRenderer);
 
   /**
-   * @brief Replaces the current SDL_Window with a new one.
+   * @brief Replaces the current SDL_Renderer with a new one.
    *
-   * This function destroys the existing SDL_Window and assigns a new SDL_Window
-   * to the internal pointer. It ensures that the old window is properly destroyed
-   * and validates the new window pointer before completing the replacement.
+   * This function attempts to replace the current renderer with a new renderer.
+   * If the operation fails at any step, it ensures the old renderer is restored
+   * to its previous state and throws an exception with detailed error information.
    *
-   * @param newWindow A pointer to the new SDL_Window to replace the current one.
-   * @return true if the window replacement is successful.
+   * @param newRenderer A pointer to the new SDL_Renderer to replace the current one.
+   * @return true if the renderer was successfully replaced.
+   * @throws Exception if:
+   *         - The old renderer cannot be saved to a temporary location.
+   *         - The new renderer cannot replace the old renderer.
+   *         - The old renderer cannot be restored after a failure.
+   *         - The old renderer cannot be destroyed, potentially causing memory leaks.
    *
-   * @throws Exception if the old window fails to be destroyed or if the new window
-   *         pointer is null after assignment.
+   * @note The function uses exception handling to manage errors and ensure
+   *       the integrity of the renderer state.
    */
   const bool replaceWindow(SDL_Window* newWindow);
 
