@@ -11,6 +11,31 @@ Exception::Exception(string message, string path, int code, int severity)
   this->severity = severity;
 }
 
+Exception::~Exception() {}
+
+const std::string Exception::getMessage(string* returnval) {
+  if (returnval != nullptr) returnval = &message;
+  return message;
+}
+
+const int Exception::getCode(int* returnval) {
+  if (returnval != nullptr)
+    returnval = &code;
+  return code;
+}
+
+const std::string Exception::getPath(std::string* returnval) {
+  if (returnval != nullptr)
+    returnval = &path;
+  return path;
+}
+
+const int Exception::getSeverity(int* returnval) {
+  if (returnval != nullptr)
+    returnval = &severity;
+  return severity;
+}
+
 Exception Exception::operator<<(string addToPath)
 {
   string newPath = addToPath;
@@ -33,29 +58,23 @@ Logging::Logging(int level, string file)
 {
   loggingLevel = level;
   output.open(file, ios::binary);
+  if (!output.is_open()) cerr << "Could not open logging file. Logging will not be provided for " << file << endl;
 }
 
-void Logging::log(string message, int type)
-{
+void Logging::log(string message, int severity) {
   writeTime();
-  if (type == 0)
+  if (severity == 0)
     output << "INFO    ";
-  else if (type == 1)
+  else if (severity == 1)
     output << "WARNING ";
-  else if (type == 2)
+  else if (severity == 2)
     output << "ERROR   ";
   else
     output << "FATAL   ";
   output << message << endl;
 }
 
-void Logging::log(std::string message)
-{
-  writeTime();
-  output << "INFO    " << message << endl;
-}
-
-void Logging::log(Exception &e)
+void Logging::log(Exception& e)
 {
   writeTime();
   if (e.getSeverity() == 1)
@@ -66,3 +85,5 @@ void Logging::log(Exception &e)
     output << "FATAL   ";
   output << "Exception occured at " << e.getPath() << " with code " << e.getCode() << ". Message: " << e.getMessage() << endl;
 }
+
+

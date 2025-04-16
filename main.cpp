@@ -1,9 +1,10 @@
 #include <cstring>
 #include <iostream>
 #include "include/exception.h"
+#include "include/game.h"
 using namespace std;
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   bool logTest = false;
   int logging = 0;
@@ -11,7 +12,7 @@ int main(int argc, char *argv[])
   if (argc == 2 && (!strcmp(argv[1], "help") || !strcmp(argv[1], "?")))
   {
     cout << "Usage: ./SABWR [OPTION...]" << endl
-         << endl;
+      << endl;
     cout << "-l,--logging LEVEL    What to log. Default is 0. Accepts: ";
     cout << "0 - No Logging" << endl;
     cout << "                                            1 - Fatal Crashes" << endl;
@@ -80,6 +81,5 @@ int main(int argc, char *argv[])
     consoleLog.log("Still alive");
     exit(12112007);
   }
-
   exit(0);
 }
