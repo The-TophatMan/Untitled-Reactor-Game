@@ -7,6 +7,9 @@
 #include <utility>
 #include <vector>
 #include <iostream>
+
+using namespace std;
+
 /**
  * @class CLA_Handler
  * @brief A class for handling command-line arguments.
@@ -30,15 +33,15 @@
  * Example:
  * @code
  * CLA_Handler handler;
- * handler.addArgument("-a", [](const std::string& value, &data);
+ * handler.addArgument("-a", [](const string& value, &data);
  * handler.cycleArguments(argc, argv);
  * @endcode
  */
 class CLA_Handler { //CLA = Command Line Arguments
 private:
-  std::map<char, std::pair<std::function<void(const std::string&, void*)>, void*>> sca; // Single Character Arguments. Prefixed by -
-  std::map<std::string, std::pair<std::function<void(const std::string&, void*)>, void*>> mca; // Multi-Character Arguments. Prefixed by --
-  std::pair<std::function<void(const std::string&, void*)>, void*> noargArgument;
+  map<char, pair<function<void(const string&, vector<void*>&)>, vector<void*>>> sca; // Single Character Arguments. Prefixed by -
+  map<string, pair<function<void(const string&, vector<void*>&)>, vector<void*>>> mca; // Multi-Character Arguments. Prefixed by --
+  pair<function<void(const string&, vector<void*>&)>, vector<void*>> noargArgument;
 protected:
 public:
   /**
@@ -101,33 +104,33 @@ public:
    *                 `-a` or `--argument`. The leading dashes are stripped
    *                 internally.
    * @param func A callback function to handle the argument. The function takes
-   *             a single `std::string` parameter, which represents the value
+   *             a single `string` parameter, which represents the value
    *             associated with the argument.
-   * @param extradata A void pointer to additional data that can be passed to
+   * @param extradata A vector of void pointers to additional data that can be passed to
    * the callback function.
    *
    * @throws Exception If the argument already exists in the single-character
    *                   argument map (`sca`) or the multi-character argument map
    *                   (`mca`).
    */
-  void addArgument(const std::string argument, const std::function<void(const std::string&, void*)>& func, void* extradata = nullptr);
+  void addArgument(const string argument, const function<void(const string&, vector<void*>&)>& func, vector<void*> extradata = {});
 
   /**
    * @brief Adds a no-argument function to be executed.
    *
-   * This function assigns a callable object (std::function<void(const std::string&, void*)>) to the
+   * This function assigns a callable object (function<void(const string&, vector<void*>&)>) to the
    * internal noargArgument member. If a no-argument function has already
    * been assigned, an exception is thrown to prevent overwriting.
    *
-   * @param func A reference to a std::function<void(const std::string&, void*)> representing the
+   * @param func A reference to a function<void(const string&, vector<void*>&)> representing the
    *             no-argument function to be added.
-   * @param extradata A void pointer to additional data that can be passed to the callback function.
+   * @param extradata A vector of void pointers to additional data that can be passed to the callback function.
    *
    * @throws Exception If a no-argument function has already been added.
    *                   The exception contains a message, the function name,
    *                   and error codes for debugging purposes.
    */
-  void addnoargArgument(std::function<void(const std::string&, void*)>& func, void* extradata = nullptr);
+  void addnoargArgument(function<void(const string&, vector<void*>&)>& func, vector<void*> extradata = {});
 
   /**
    * @brief Modifies the behavior of an existing command-line argument by assigning a new function to it.
@@ -138,13 +141,12 @@ public:
    *
    * @param argument The command-line argument to modify. It can be prefixed with one or two dashes
    *                 (e.g., `-a` or `--argument`), which will be stripped before processing.
-   * @param newFunc A `std::function<void(const std::string&, void*)>` representing the new behavior to associate with the argument.
+   * @param newFunc A `function<void(const string&, vector<void*>&)>` representing the new behavior to associate with the argument.
    *
    * @throws Exception If the specified argument does not exist in the single-character or
    *                   multi-character argument maps.
    */
-  void modifyArgument(const std::string argument,
-    const std::function<void(const std::string&, void*)>& newFunc);
+  void modifyArgument(const string argument, const function<void(const string&, vector<void*>&)>& newFunc = NULL, const vector<void*> extradata = {});
 
   /**
    * @brief Modifies an existing argument by replacing it with a new argument.
@@ -160,15 +162,15 @@ public:
    *
    * @throws Exception If the old argument does not exist or the new argument already exists.
    */
-  void modifyArgument(const std::string oldArg, const std::string newArg);
+  void modifyArgument(const string oldArg, const string newArg);
 
   /**
    * @brief Modifies the stored no-argument function with a new function.
    *
-   * @param func A reference to a std::function<void(const std::string&, void*)> object that will replace
+   * @param func A reference to a function<void(const string&, vector<void*>&)> object that will replace
    *             the current no-argument function.
    */
-  void modifynoargArgument(std::function<void(const std::string&, void*)>& func) {
+  void modifynoargArgument(function<void(const string&, vector<void*>&)>& func) {
     noargArgument.first = func;
   }
 
@@ -192,18 +194,18 @@ public:
    * - If a multi-character or single-character argument is recognized, its
    *   corresponding handler is invoked. If the argument expects a value, the
    *   next argument is passed to the handler; otherwise, `nullptr` is passed.
-   * - If an argument is unrecognized, a message is printed to `std::cout`.
+   * - If an argument is unrecognized, a message is printed to `cout`.
    * - If a non-flag argument is encountered and a handler for non-flag
    *   arguments (`noargArgument`) is defined, the handler is invoked only once.
    * - Subsequent unrecognized non-flag arguments are reported as unknown.
    *
    * Notes:
-   * - The function assumes that `mca` and `sca` are mappings (e.g., `std::map`
+   * - The function assumes that `mca` and `sca` are mappings (e.g., `map`
    *   or similar) that associate argument names/characters with their respective
    *   handlers (functions or callable objects).
    * - The `noargArgument` is a callable object or function that handles the
    *   first non-flag argument.
    */
-  void cycleArguments(const int argc, const char** argv);
+  void cycleArguments(const int argc, char** argv);
 };
 #endif

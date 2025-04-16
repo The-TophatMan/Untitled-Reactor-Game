@@ -1,14 +1,16 @@
 #include "../include/cla.h"
 #include <utility>
 
+using namespace std;
+
 CLA_Handler::CLA_Handler() {}
 
-void CLA_Handler::addArgument(const std::string argument, const std::function<void(const std::string&, void*)>& func, void* extradata) {
-  std::string finalArg = argument;
+void CLA_Handler::addArgument(const string argument, const function<void(const string&, vector<void*>&)>& func, vector<void*> extradata) {
+  string finalArg = argument;
   if (argument[0] == '-')
     finalArg = argument.substr(1);
   if (finalArg[0] == '-') {
-    std::string tempArg = finalArg;
+    string tempArg = finalArg;
     finalArg = tempArg.substr(1);
   }
   if (finalArg.size() == 1) {
@@ -29,28 +31,29 @@ void CLA_Handler::addArgument(const std::string argument, const std::function<vo
   }
 }
 
-void CLA_Handler::addnoargArgument(std::function<void(const std::string&, void*)>& func, void* extradata) {
+void CLA_Handler::addnoargArgument(function<void(const string&, vector<void*>&)>& func, vector<void*> extradata) {
   if (noargArgument.first)
     throw Exception("Attempted to add noargArgument, but it already exists",
       "CLA_Handler::addnoargArgument", -1, 0);
   noargArgument = make_pair(func, extradata);
 }
 
-void CLA_Handler::modifyArgument(const std::string argument, const std::function<void(const std::string&, void*)>& newFunc) {
-  std::string finalArg = argument;
+void CLA_Handler::modifyArgument(const string argument, const function<void(const string&, vector<void*>&)>& newFunc, const vector<void*> extradata) {
+  string finalArg = argument;
   if (argument[0] == '-')
     finalArg = argument.substr(1);
   if (finalArg[0] == '-') {
-    std::string tempArg = finalArg;
+    string tempArg = finalArg;
     finalArg = tempArg.substr(1);
   }
   if (finalArg.size() == 1) {
     auto it = sca.find(finalArg[0]);
     if (it == sca.end())
-      throw Exception("Could not modify argument " + finalArg +
-        ", argument does not exist",
-        "CLA_Handler::modifyArgument.1", -1, 0);
-    it->second.first = newFunc;
+      throw Exception("Could not modify argument " + finalArg + ", argument does not exist", "CLA_Handler::modifyArgument.1", -1, 0);
+    if (newFunc != NULL)
+      it->second.first = newFunc;
+    if (!extradata.empty())
+      it->second.second = extradata;
   }
   else {
     auto it = mca.find(finalArg);
@@ -58,22 +61,25 @@ void CLA_Handler::modifyArgument(const std::string argument, const std::function
       throw Exception("Could not modify argument" + finalArg +
         ", argument does not exist",
         "CLA_Handler::modifyArgument.1", -1, 0);
-    it->second.first = newFunc;
+    if (newFunc != NULL)
+      it->second.first = newFunc;
+    if (!extradata.empty())
+      it->second.second = extradata;
   }
 }
 
-void CLA_Handler::modifyArgument(const std::string oldArg, const std::string newArg) {
-  std::string finaloldArg = oldArg, finalnewArg = newArg;
+void CLA_Handler::modifyArgument(const string oldArg, const string newArg) {
+  string finaloldArg = oldArg, finalnewArg = newArg;
   if (oldArg[0] == '-')
     finaloldArg = oldArg.substr(1);
   if (finaloldArg[0] == '-') {
-    std::string tempArg = finaloldArg;
+    string tempArg = finaloldArg;
     finaloldArg = tempArg.substr(1);
   }
   if (newArg[0] == '-')
     finalnewArg = newArg.substr(1);
   if (finalnewArg[0] == '-') {
-    std::string tempArg = finalnewArg;
+    string tempArg = finalnewArg;
     finalnewArg = tempArg.substr(1);
   }
   if (finaloldArg.size() == 1) {
@@ -82,7 +88,7 @@ void CLA_Handler::modifyArgument(const std::string oldArg, const std::string new
       throw Exception("Could not modify argument " + finaloldArg +
         ", argument does not exist",
         "CLA_Handler::modifyArgument.2", -1, 0);
-    std::pair<std::function<void(const std::string&, void*)>, void*> func = it->second; // Save the associated function
+    pair<function<void(const string&, vector<void*>&)>, vector<void*>> func = it->second; // Save the associated function
     if (finalnewArg.size() != 1) {
       auto dup = mca.find(finalnewArg);
       if (dup != mca.end())
@@ -101,7 +107,7 @@ void CLA_Handler::modifyArgument(const std::string oldArg, const std::string new
       throw Exception("Could not modify argument " + finaloldArg +
         ", argument does not exist",
         "CLA_Handler::modifyArgument.2", -1, 0);
-    std::pair<std::function<void(const std::string&, void*)>, void*> func = it->second;
+    pair<function<void(const string&, vector<void*>&)>, vector<void*>> func = it->second;
     if (finalnewArg.size() == 1) {
       auto dup = sca.find(finalnewArg[0]);
       if (dup != sca.end())
@@ -115,15 +121,15 @@ void CLA_Handler::modifyArgument(const std::string oldArg, const std::string new
   }
 }
 
-void CLA_Handler::cycleArguments(const int argc, const char** argv) {
+void CLA_Handler::cycleArguments(const int argc, char** argv) {
   bool noargArg = false;
   for (int i = 0; i < argc; i++) {
     if (argv[i][0] == '-') {
       if (argv[i][1] == '-') {
-        std::string slimArg = argv[i] + 2;
+        string slimArg = argv[i] + 2;
         auto it = mca.find(slimArg);
         if (it == mca.end())
-          std::cout << "Unknown argument " << slimArg << std::endl;
+          cout << "Unknown argument " << slimArg << endl;
         else {
           if (argv[i + 1][0] == '-')
             it->second.first(nullptr, it->second.second);
@@ -136,7 +142,7 @@ void CLA_Handler::cycleArguments(const int argc, const char** argv) {
       else {
         auto it = sca.find(argv[i][1]);
         if (it == sca.end())
-          std::cout << "Unknown argument " << argv[i][1] << std::endl;
+          cout << "Unknown argument " << argv[i][1] << endl;
         else {
           if (argv[i + 1][0] == '-')
             it->second.first(nullptr, it->second.second);
@@ -152,7 +158,7 @@ void CLA_Handler::cycleArguments(const int argc, const char** argv) {
       noargArg = true;
     }
     else {
-      std::cout << "Unknown argument " << argv[i] << std::endl;
+      cout << "Unknown argument " << argv[i] << endl;
     }
   }
 }

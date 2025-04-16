@@ -1,6 +1,7 @@
 #include "../include/basichandlers.h"
+#include <vector>
 
-void help(const string&, void*) {
+void help(const string&, vector<void*>) {
   cout << "Usage: ./SABWR [OPTION...]" << endl
     << endl
     << "-l,--logging LEVEL    What to log. Default is 0. Accepts: 0 - No Logging" << endl
@@ -11,9 +12,8 @@ void help(const string&, void*) {
     << "-f,--file    FILE     Where to log to. Default is latest.log." << endl;
 }
 
-void logTest(const string&, void* log) {
-  Logging* logger =
-    static_cast<Logging*>(log); // Replace Logger with the actual class type
+void logTest(const string&, vector<void*> pass) {
+  Logging* logger = static_cast<Logging*>(pass[0]);
   logger->log("I'm making a note here \"Huge success\"");
   logger->log("It's hard to overstate my satisfaction");
   logger->log("Aperture Science", 1);
@@ -52,4 +52,10 @@ void logTest(const string&, void* log) {
   logger->log("Still alive");
   logger->log("Still alive");
   exit(12112007);
+}
+
+void setFile(const string& output, vector<void*> pass) {
+  ofstream out(output.c_str(), ios::binary);
+  Logging* logger = static_cast<Logging*>(pass[0]);
+  logger->setOutput(&out);
 }

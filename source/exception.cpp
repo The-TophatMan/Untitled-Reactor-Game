@@ -87,4 +87,8 @@ void Logging::log(Exception& e)
   *output << "Exception occured at " << e.getPath() << " with code " << e.getCode() << ". Message: " << e.getMessage() << endl;
 }
 
+void Logging::setOutput(ostream* out) { output = out; }
 
+void Logging::updateLoggingLevel(const int newLevel) {
+  loggingLevel = newLevel;
+}

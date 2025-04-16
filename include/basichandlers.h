@@ -1,5 +1,7 @@
 #include "exception.h"
 #include <iostream>
+#include <vector>
+#include <fstream>
 using namespace std;
 
 /**
@@ -20,16 +22,40 @@ using namespace std;
  *                          4 - All Logging
  *   -f, --file FILE        Specifies the log file. Default is "latest.log".
  */
-void help(const string&, void*);
-
-void setFile(const string&, void*) {
-
-}
+void help(const string&, vector<void*>);
 
 /**
- * @brief Logs a test message.
+ * @brief Sets the output file for logging and configures the logger.
  *
- * @param message The message to be logged.
- * @param log A pointer to the logging mechanism or context.
+ * This function opens a binary output file stream for the specified file path
+ * and sets it as the output stream for the logger. The logger is retrieved
+ * from the provided vector of pointers.
+ *
+ * @param output The file path to the output file as a string.
+ * @param pass A vector of void pointers, where the first element is expected
+ *             to be a pointer to a Logging object.
+ *
+ * @note The caller must ensure that the first element of the `pass` vector
+ *       is a valid pointer to a Logging object. Undefined behavior may occur
+ *       otherwise.
  */
-void logTest(const string&, void* log);
+void setFile(const string& output, vector<void*> pass);
+
+/**
+ * @brief Logs a series of messages, primarily lyrics from the song "Still Alive" by Jonathan Coulton,
+ *        used in the game Portal, to a logging system.
+ *
+ * @param message A placeholder string parameter (not used in the function).
+ * @param pass A vector of void pointers, where the first element is expected to be a pointer to a Logging object.
+ *
+ * @details This function demonstrates logging functionality by outputting a sequence of predefined messages
+ *          to the provided Logging object. The messages include various log levels (e.g., 1, 2, 3) to simulate
+ *          different levels of importance or categorization. The function ends by exiting the program with
+ *          a specific exit code (12112007).
+ *
+ * @note The function assumes that the first element of the `pass` vector is a valid Logging object.
+ *       Passing an invalid or null pointer will result in undefined behavior.
+ *
+ * @exitcode 12112007 The program exits with this code after logging all messages.
+ */
+void logTest(const string&, vector<void*> pass);

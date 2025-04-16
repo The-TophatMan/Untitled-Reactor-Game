@@ -3,6 +3,8 @@
 #include <string>
 #include <ostream>
 
+using namespace std;
+
 /**
  * @class Exception
  * @brief A class to represent exceptions with detailed information such as message, code, path, and severity.
@@ -22,10 +24,11 @@
 class Exception
 {
 private:
-  std::string message;
+  string message;
   int code;
-  std::string path;
+  string path;
   int severity; // 0 - Warning, 1 - Error, 2 - Fatal
+
 public:
   /**
    * @brief Default copy constructor for the Exception class.
@@ -70,7 +73,7 @@ public:
  * @param code An integer representing the error code associated with the exception.
  * @param severity An integer indicating the severity level of the exception.
  */
-  Exception(std::string message, std::string path, int code, int severity);
+  Exception(string message, string path, int code, int severity);
 
   /**
  * @brief Destructor for the Exception class.
@@ -89,7 +92,7 @@ public:
  *                  Note: The pointer itself is reassigned, not the value it points to.
  * @return The exception message as a constant string.
  */
-  const std::string getMessage(std::string* returnval = nullptr);
+  const string getMessage(string* returnval = nullptr);
 
   /**
    * @brief Retrieves the error code and optionally sets a pointer to it.
@@ -103,11 +106,11 @@ public:
   /**
    * @brief Retrieves the path as a string and optionally assigns it to a provided pointer.
    *
-   * @param returnval Optional pointer to a std::string. If provided, it will be set to point to the internal path.
+   * @param returnval Optional pointer to a string. If provided, it will be set to point to the internal path.
    *                  Note: The pointer itself is reassigned, not the value it points to.
-   * @return The internal path as a std::string.
+   * @return The internal path as a string.
    */
-  const std::string getPath(std::string* returnval = nullptr);
+  const string getPath(string* returnval = nullptr);
 
   /**
    * @brief Retrieves the severity level of the exception.
@@ -128,7 +131,7 @@ public:
  * @param addToPath The string to prepend to the exception's path.
  * @return Exception A reference to the updated Exception object.
  */
-  Exception operator<<(std::string addToPath);
+  Exception operator<<(string addToPath);
 };
 
 /**
@@ -158,7 +161,7 @@ public:
  *
  * @example
  * @code
- * Logging logger(3, std::cout);
+ * Logging logger(3, cout);
  * logger.log("This is an informational message.", 0);
  * logger.log("This is a warning message.", 1);
  * logger.log("This is an error message.", 2);
@@ -169,7 +172,7 @@ class Logging
 {
 private:
   int loggingLevel = 0;
-  std::ostream* output;
+  ostream* output;
 
   /**
    * @brief Writes the current time in HH:MM:SS format to the logging output stream.
@@ -233,7 +236,7 @@ public:
    * @details This constructor initializes the logging level and sets the output stream
    * for writing log messages.
    */
-  Logging(int level, std::ostream& stream);
+  Logging(int level, ostream& stream);
 
   /**
    * @brief Logs a message with a specified severity level.
@@ -248,7 +251,7 @@ public:
    *                 - 2: ERROR
    *                 - Any other value: FATAL
    */
-  void log(std::string message, int severity = 0);
+  void log(string message, int severity = 0);
 
   /**
  * @brief Logs an exception with its details, including severity, location, code, and message.
@@ -261,6 +264,21 @@ public:
  *          its severity level, file path, code, and message.
  */
   void log(Exception& e);
+
+  /**
+   * @brief Sets the output stream for the object.
+   *
+   * @param out A pointer to the output stream (e.g., std::ostream) where the output will be directed.
+   */
+  void setOutput(ostream* out);
+
+  /**
+   * @brief Updates the logging level for the application.
+   *
+   * @param newLevel The new logging level to be set. This should be an integer
+   *                 representing the desired logging verbosity or severity.
+   */
+  void updateLoggingLevel(const int newLevel);
 };
 
 #endif
