@@ -1,20 +1,22 @@
 #include "../include/basichandlers.h"
 #include <vector>
 
-void help(const string&, vector<void*>) {
+void help(const string &, vector<void *>)
+{
   cout << "Usage: ./SABWR [OPTION...]" << endl
-    << endl
-    << "-l,--logging LEVEL    What to log. Default is 0. Accepts: 0 - No Logging" << endl
-    << "                                                          1 - Fatal Crashes" << endl
-    << "                                                          2 - Errors and Fatal" << endl
-    << "                                                          3 - Warnings, Errors, and Fatal" << endl
-    << "                                                          4 - All Logging" << endl
-    << "-F,--file    FILE     Where to log to. Default is latest.log." << endl;
+       << endl
+       << "-l,--logging LEVEL    What to log. Default is 0. Accepts: 0 - No Logging" << endl
+       << "                                                          1 - Fatal Crashes" << endl
+       << "                                                          2 - Errors and Fatal" << endl
+       << "                                                          3 - Warnings, Errors, and Fatal" << endl
+       << "                                                          4 - All Logging" << endl
+       << "-F,--file    FILE     Where to log to. Default is latest.log." << endl;
 }
 
-void logTest(const string&, vector<void*> pass) {
-  Logging* logger = static_cast<Logging*>(pass[0]);
-  cout << &logger << endl;
+void logTest(const string &, vector<void *> pass)
+{
+  Logging *logger = static_cast<Logging *>(pass[0]);
+  logger->log("This was a triumph");
   logger->log("I'm making a note here \"Huge success\"");
   logger->log("It's hard to overstate my satisfaction");
   logger->log("Aperture Science", 1);
@@ -55,9 +57,16 @@ void logTest(const string&, vector<void*> pass) {
   exit(12112007);
 }
 
-void setFile(const string& output, vector<void*> pass) {
+void setFile(const string &output, vector<void *> pass)
+{
   static ofstream out; // Ensure the ofstream persists
   out.open(output.c_str(), ios::binary);
-  Logging* logger = static_cast<Logging*>(pass[0]);
+  Logging *logger = static_cast<Logging *>(pass[0]);
   logger->setOutput(&out);
+}
+
+void logLevel(const string &level, vector<void *> pass)
+{
+  Logging *logger = static_cast<Logging *>(pass[0]);
+  logger->updateLoggingLevel(stoi(level));
 }

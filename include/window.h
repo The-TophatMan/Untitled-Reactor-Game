@@ -17,8 +17,8 @@
 class Window
 {
 private:
-  SDL_Window* window;
-  SDL_Renderer* renderer;
+  SDL_Window *window;
+  SDL_Renderer *renderer;
   bool execute = true;
 
 protected:
@@ -29,7 +29,7 @@ public:
    * This constructor performs a member-wise copy of the Window object,
    * copying all non-static members from the source object to the new object.
    */
-  Window(const Window&) = default;
+  Window(const Window &) = default;
 
   /**
    * @brief Deleted move constructor to prevent moving of Window objects.
@@ -37,7 +37,7 @@ public:
    * This ensures that Window instances cannot be moved, which might be
    * necessary to maintain resource ownership or other invariants.
    */
-  Window(Window&&) = delete;
+  Window(Window &&) = delete;
 
   /**
    * @brief Default copy assignment operator for the Window class.
@@ -49,7 +49,7 @@ public:
    * @param other The Window object to copy from.
    * @return A reference to the current Window object after assignment.
    */
-  Window& operator=(const Window&) = default;
+  Window &operator=(const Window &) = default;
 
   /**
    * @brief Deleted move assignment operator for the Window class.
@@ -58,8 +58,7 @@ public:
    * It ensures that the Window instance cannot be reassigned from another instance
    * through move semantics, preserving its integrity and preventing unintended behavior.
    */
-  Window& operator=(Window&&) = delete;
-
+  Window &operator=(Window &&) = delete;
 
   /**
    * @brief Constructs a Window object and initializes an SDL window and renderer.
@@ -74,7 +73,7 @@ public:
    *
    * @throws Exception If the SDL window or renderer fails to initialize.
    */
-  Window(const char* title, const int width = 1280, const int height = 720);
+  Window(const char *title, const int width = 1280, const int height = 720);
 
   /**
    * @brief Destructor for the Window class.
@@ -92,7 +91,7 @@ public:
    *                  the value of the internal renderer. Defaults to nullptr.
    * @return SDL_Renderer* Pointer to the internal SDL_Renderer instance.
    */
-  SDL_Renderer* getRenderer(SDL_Renderer* returnval = nullptr);
+  SDL_Renderer *getRenderer(SDL_Renderer *returnval = nullptr);
 
   /**
    * @brief Retrieves the SDL_Window instance associated with the game.
@@ -105,7 +104,7 @@ public:
    *                   be assigned the value of the current window.
    * @return SDL_Window* The current SDL_Window instance.
    */
-  SDL_Window* getWindow(SDL_Window* returnval = nullptr);
+  SDL_Window *getWindow(SDL_Window *returnval = nullptr);
 
   /**
    * @brief Checks if the game is currently running and optionally sets a return value.
@@ -114,7 +113,7 @@ public:
    *                  current state of the game (true if running, false otherwise).
    * @return true if the game is running, false otherwise.
    */
-  const bool isRunning(bool* returnval = nullptr);
+  const bool isRunning(bool *returnval = nullptr);
 
   /**
    * @brief Replaces the current SDL_Renderer with a new one.
@@ -134,7 +133,7 @@ public:
    * @note The function uses exception handling to manage errors and ensure
    *       the integrity of the renderer state.
    */
-  const bool replaceRenderer(SDL_Renderer* newRenderer);
+  const bool replaceRenderer(SDL_Renderer *newRenderer);
 
   /**
    * @brief Replaces the current SDL_Renderer with a new one.
@@ -154,7 +153,7 @@ public:
    * @note The function uses exception handling to manage errors and ensure
    *       the integrity of the renderer state.
    */
-  const bool replaceWindow(SDL_Window* newWindow);
+  const bool replaceWindow(SDL_Window *newWindow);
 
   /**
    * @brief Toggles the execution state.

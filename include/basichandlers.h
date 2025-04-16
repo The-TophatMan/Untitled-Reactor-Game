@@ -24,7 +24,7 @@ using namespace std;
  *                          4 - All Logging
  *   -f, --file FILE        Specifies the log file. Default is "latest.log".
  */
-void help(const string&, vector<void*>);
+void help(const string &, vector<void *>);
 
 /**
  * @brief Sets the output file for logging and configures the logger.
@@ -41,7 +41,7 @@ void help(const string&, vector<void*>);
  *       is a valid pointer to a Logging object. Undefined behavior may occur
  *       otherwise.
  */
-void setFile(const string& output, vector<void*> pass);
+void setFile(const string &output, vector<void *> pass);
 
 /**
  * @brief Logs a series of messages, primarily lyrics from the song "Still Alive" by Jonathan Coulton,
@@ -60,5 +60,22 @@ void setFile(const string& output, vector<void*> pass);
  *
  * @exitcode 12112007 The program exits with this code after logging all messages.
  */
-void logTest(const string&, vector<void*> pass);
+void logTest(const string &, vector<void *> pass);
+
+/**
+ * @brief Updates the logging level of the logger instance.
+ *
+ * This function takes a logging level as a string and updates the logging
+ * level of the logger instance provided in the `pass` vector.
+ *
+ * @param level A string representing the desired logging level. It is expected
+ *              to be convertible to an integer using `std::stoi`.
+ * @param pass  A vector of void pointers, where the first element is expected
+ *              to be a pointer to a `Logging` instance.
+ *
+ * @note The function assumes that `pass[0]` is a valid pointer to a `Logging`
+ *       object and that `level` can be successfully converted to an integer.
+ *       Undefined behavior may occur if these assumptions are violated.
+ */
+void logLevel(const string &level, vector<void *> pass);
 #endif
