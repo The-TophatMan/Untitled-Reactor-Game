@@ -1,3 +1,5 @@
+#ifndef BASICHANDLERS_H
+#define BASICHANDLERS_H
 #include "exception.h"
 #include <iostream>
 #include <vector>
@@ -59,3 +61,4 @@ void setFile(const string& output, vector<void*> pass);
  * @exitcode 12112007 The program exits with this code after logging all messages.
  */
 void logTest(const string&, vector<void*> pass);
+#endif

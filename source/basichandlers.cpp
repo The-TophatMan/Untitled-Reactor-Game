@@ -9,7 +9,7 @@ void help(const string&, vector<void*>) {
     << "                                                          2 - Errors and Fatal" << endl
     << "                                                          3 - Warnings, Errors, and Fatal" << endl
     << "                                                          4 - All Logging" << endl
-    << "-f,--file    FILE     Where to log to. Default is latest.log." << endl;
+    << "-F,--file    FILE     Where to log to. Default is latest.log." << endl;
 }
 
 void logTest(const string&, vector<void*> pass) {

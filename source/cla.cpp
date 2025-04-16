@@ -123,7 +123,7 @@ void CLA_Handler::modifyArgument(const string oldArg, const string newArg) {
 
 void CLA_Handler::cycleArguments(const int argc, char** argv) {
   bool noargArg = false;
-  for (int i = 0; i < argc; i++) {
+  for (int i = 1; i < argc; i++) {
     if (argv[i][0] == '-') {
       if (argv[i][1] == '-') {
         string slimArg = argv[i] + 2;
@@ -131,11 +131,13 @@ void CLA_Handler::cycleArguments(const int argc, char** argv) {
         if (it == mca.end())
           cout << "Unknown argument " << slimArg << endl;
         else {
-          if (argv[i + 1][0] == '-')
-            it->second.first(nullptr, it->second.second);
-          else {
-            it->second.first(argv[i + 1], it->second.second);
-            i++;
+          if (i + 1 < argc) {
+            if (argv[i + 1][0] == '-')
+              it->second.first(nullptr, it->second.second);
+            else {
+              it->second.first(argv[i + 1], it->second.second);
+              i++;
+            }
           }
         }
       }
@@ -144,11 +146,13 @@ void CLA_Handler::cycleArguments(const int argc, char** argv) {
         if (it == sca.end())
           cout << "Unknown argument " << argv[i][1] << endl;
         else {
-          if (argv[i + 1][0] == '-')
-            it->second.first(nullptr, it->second.second);
-          else {
-            it->second.first(argv[i + 1], it->second.second);
-            i++;
+          if (i + 1 < argc) {
+            if (argv[i + 1][0] == '-')
+              it->second.first(nullptr, it->second.second);
+            else {
+              it->second.first(argv[i + 1], it->second.second);
+              i++;
+            }
           }
         }
       }

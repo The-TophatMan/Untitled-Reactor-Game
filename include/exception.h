@@ -39,12 +39,13 @@ public:
   Exception(const Exception&) = default;
 
   /**
-   * @brief Deleted move constructor for the Exception class.
+   * @brief Move constructor for the Exception class.
    *
-   * This prevents the Exception object from being moved, ensuring that
-   * the integrity of the exception handling mechanism is maintained.
+   * This constructor allows the Exception object to be moved from another
+   * Exception instance. The default implementation is used, which performs
+   * a member-wise move of the Exception object's resources.
    */
-  Exception(Exception&&) = delete;
+  Exception(Exception&&) noexcept = default;
 
   /**
    * @brief Default copy assignment operator for the Exception class.
@@ -58,12 +59,15 @@ public:
   Exception& operator=(const Exception&) = default;
 
   /**
-   * @brief Deleted move assignment operator to prevent moving of Exception objects.
+   * @brief Move assignment operator for the Exception class.
    *
-   * This ensures that Exception instances cannot be assigned using move semantics,
-   * preserving the integrity of the exception object and avoiding unintended behavior.
+   * This operator allows the Exception object to be assigned from another
+   * Exception object using move semantics. The default implementation
+   * performs a member-wise move of the object's resources.
+   *
+   * @return A reference to the current Exception object after the move assignment.
    */
-  Exception& operator=(Exception&&) = delete;
+  Exception& operator=(Exception&&) noexcept = default;
 
   /**
  * @brief Constructs an Exception object with the specified details.
