@@ -51,39 +51,40 @@ void Logging::writeTime()
   tm timestamp = *localtime(&currTime);
   char logstamp[9];
   strftime(logstamp, 9, "%H:%M:%S", &timestamp);
-  output << "[" << logstamp << "] ";
+  *output << "[" << logstamp << "] ";
 }
 
-Logging::Logging(int level, string file)
+Logging::Logging(int level, ostream& stream)
 {
   loggingLevel = level;
-  output.open(file, ios::binary);
-  if (!output.is_open()) cerr << "Could not open logging file. Logging will not be provided for " << file << endl;
+  output = &stream;
 }
 
 void Logging::log(string message, int severity) {
+  if (!output || loggingLevel == 0 || severity < 0 || severity > loggingLevel) return;
   writeTime();
   if (severity == 0)
-    output << "INFO    ";
+    *output << "INFO    ";
   else if (severity == 1)
-    output << "WARNING ";
+    *output << "WARNING ";
   else if (severity == 2)
-    output << "ERROR   ";
+    *output << "ERROR   ";
   else
-    output << "FATAL   ";
-  output << message << endl;
+    *output << "FATAL   ";
+  *output << message << endl;
 }
 
 void Logging::log(Exception& e)
 {
+  if (!output || loggingLevel == 0 || e.getSeverity() > loggingLevel) return;
   writeTime();
   if (e.getSeverity() == 1)
-    output << "WARNING ";
+    *output << "WARNING ";
   else if (e.getSeverity() == 2)
-    output << "ERROR   ";
+    *output << "ERROR   ";
   else
-    output << "FATAL   ";
-  output << "Exception occured at " << e.getPath() << " with code " << e.getCode() << ". Message: " << e.getMessage() << endl;
+    *output << "FATAL   ";
+  *output << "Exception occured at " << e.getPath() << " with code " << e.getCode() << ". Message: " << e.getMessage() << endl;
 }
 
 

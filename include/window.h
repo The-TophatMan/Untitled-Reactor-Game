@@ -60,18 +60,19 @@ public:
    */
   Window& operator=(Window&&) = delete;
 
+
   /**
    * @brief Constructs a Window object and initializes an SDL window and renderer.
    *
-   * This constructor creates an SDL window with the specified title, width, and height,
-   * and centers it on the screen. It also creates an SDL renderer for the window.
-   * If either the window or renderer creation fails, an Exception is thrown.
+   * This constructor creates an SDL window with the specified title, width, and height.
+   * It also initializes an SDL renderer for the created window. If either the window
+   * or the renderer fails to initialize, an Exception is thrown.
    *
    * @param title The title of the window.
-   * @param width The width of the window in pixels.
-   * @param height The height of the window in pixels.
+   * @param width The width of the window in pixels. Defaults to 1280.
+   * @param height The height of the window in pixels. Defaults to 720.
    *
-   * @throws Exception If the SDL window or renderer cannot be created.
+   * @throws Exception If the SDL window or renderer fails to initialize.
    */
   Window(const char* title, const int width = 1280, const int height = 720);
 

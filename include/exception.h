@@ -1,7 +1,7 @@
 #ifndef EXCEPTION_H
 #define EXCEPTION_H
 #include <string>
-#include <fstream>
+#include <ostream>
 
 /**
  * @class Exception
@@ -133,10 +133,10 @@ public:
 
 /**
  * @class Logging
- * @brief A class for logging messages to a file with different severity levels.
+ * @brief A class for logging messages to a stream with different severity levels.
  *
  * The Logging class provides functionality to log messages with varying levels
- * of severity to a specified file. It supports logging informational messages,
+ * of severity to a specified stream. It supports logging informational messages,
  * warnings, errors, and fatal errors. The logging level can be configured to
  * control the verbosity of the logs.
  *
@@ -157,17 +157,19 @@ public:
  *   - 3: Fatal
  *
  * @example
- * Logging logger(3, "logfile.txt");
+ * @code
+ * Logging logger(3, std::cout);
  * logger.log("This is an informational message.", 0);
  * logger.log("This is a warning message.", 1);
  * logger.log("This is an error message.", 2);
  * logger.log("This is a fatal error message.", 3);
+ * @endcode
  */
 class Logging
 {
 private:
   int loggingLevel = 0;
-  std::ofstream output;
+  std::ostream* output;
 
   /**
    * @brief Writes the current time in HH:MM:SS format to the logging output stream.
@@ -218,7 +220,7 @@ public:
   Logging& operator=(Logging&&) = default;
 
   /**
-   * @brief Constructs a Logging object with a specified logging level and output file.
+   * @brief Constructs a Logging object with a specified logging level and output stream.
    *
    * @param level The logging level to be used.
    *              - 0: No Logging
@@ -226,13 +228,12 @@ public:
    *              - 2: Errors and Fatal messages
    *              - 3: Warnings, Errors, and Fatal messages
    *              - 4: Info, Warnings, Errors, and Fatal messages
-   * @param file The file path where the log output will be written. The file is opened in binary mode.
+   * @param stream The output stream where the log messages will be written.
    *
-   * @details This constructor initializes the logging level and attempts to open the specified
-   * file in binary mode for writing log messages. If the file cannot be opened, an error
-   * message is printed to the standard error stream, and logging to the file will not be available.
+   * @details This constructor initializes the logging level and sets the output stream
+   * for writing log messages.
    */
-  Logging(int level, std::string file);
+  Logging(int level, std::ostream& stream);
 
   /**
    * @brief Logs a message with a specified severity level.

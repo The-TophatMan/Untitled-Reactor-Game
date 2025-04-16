@@ -1,0 +1,139 @@
+#ifndef CLA_H
+#define CLA_H
+#include "exception.h"
+#include <functional>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
+#include <iostream>
+class CLA_Handler { //CLA = Command Line Arguments
+private:
+  std::map<char, std::function<void(const std::string&)>> sca; // Single Character Arguments. Prefixed by -
+  std::map<std::string, std::function<void(const std::string&)>> mca; //Multi-Character Arguments. Prefixed by --
+  std::function<void(const std::string&)> noargArgument;
+protected:
+public:
+  /**
+   * @brief Default constructor for the CLA_Handler class.
+   *
+   * This constructor initializes an instance of the CLA_Handler class.
+   */
+  CLA_Handler();
+
+  /**
+   * @brief Adds a command-line argument and its associated handler function.
+   *
+   * This function registers a command-line argument and associates it with a
+   * callback function that will be executed when the argument is encountered.
+   * It supports both single-character arguments (e.g., `-a`) and multi-character
+   * arguments (e.g., `--argument`).
+   *
+   * @param argument The command-line argument to add. It can be in the form of
+   *                 `-a` or `--argument`. The leading dashes are stripped
+   *                 internally.
+   * @param func A callback function to handle the argument. The function takes
+   *             a single `std::string` parameter, which represents the value
+   *             associated with the argument.
+   *
+   * @throws Exception If the argument already exists in the single-character
+   *                   argument map (`sca`) or the multi-character argument map
+   *                   (`mca`).
+   */
+  void addArgument(const std::string argument,
+    const std::function<void(const std::string&)>& func);
+
+  /**
+   * @brief Adds a no-argument function to be executed.
+   *
+   * This function assigns a callable object (std::function<void(const std::string&)>) to the
+   * internal noargArgument member. If a no-argument function has already
+   * been assigned, an exception is thrown to prevent overwriting.
+   *
+   * @param func A reference to a std::function<void(const std::string&)> representing the
+   *             no-argument function to be added.
+   *
+   * @throws Exception If a no-argument function has already been added.
+   *                   The exception contains a message, the function name,
+   *                   and error codes for debugging purposes.
+   */
+  void addnoargArgument(std::function<void(const std::string&)>& func);
+
+  /**
+   * @brief Modifies the behavior of an existing command-line argument by assigning a new function to it.
+   *
+   * This function updates the callback associated with a command-line argument. The argument can be
+   * either a single-character argument (e.g., `-a`) or a multi-character argument (e.g., `--argument`).
+   * If the argument does not exist in the current set of arguments, an exception is thrown.
+   *
+   * @param argument The command-line argument to modify. It can be prefixed with one or two dashes
+   *                 (e.g., `-a` or `--argument`), which will be stripped before processing.
+   * @param newFunc A `std::function<void(const std::string&)>` representing the new behavior to associate with the argument.
+   *
+   * @throws Exception If the specified argument does not exist in the single-character or
+   *                   multi-character argument maps.
+   */
+  void modifyArgument(const std::string argument,
+    const std::function<void(const std::string&)>& newFunc);
+
+  /**
+   * @brief Modifies an existing argument by replacing it with a new argument.
+   *
+   * This function updates the internal mappings of arguments, ensuring that the
+   * old argument is replaced with the new one. It handles both single-character
+   * arguments (stored in `sca`) and multi-character arguments (stored in `mca`).
+   * If the old argument does not exist or the new argument already exists, an
+   * exception is thrown.
+   *
+   * @param oldArg The existing argument to be modified. Can be prefixed with one or two dashes.
+   * @param newArg The new argument to replace the old one. Can also be prefixed with one or two dashes.
+   *
+   * @throws Exception If the old argument does not exist or the new argument already exists.
+   */
+  void modifyArgument(const std::string oldArg, const std::string newArg);
+
+  /**
+   * @brief Modifies the stored no-argument function with a new function.
+   *
+   * @param func A reference to a std::function<void(const std::string&)> object that will replace
+   *             the current no-argument function.
+   */
+  void modifynoargArgument(std::function<void(const std::string&)>& func) {
+    noargArgument = func;
+  }
+
+  /**
+   * @brief Parses and processes command-line arguments.
+   *
+   * This function iterates through the provided command-line arguments and
+   * processes them based on predefined mappings for single-character arguments
+   * (sca) and multi-character arguments (mca). It also handles non-flag
+   * arguments if a handler is defined.
+   *
+   * @param argc The number of command-line arguments.
+   * @param argv The array of command-line argument strings.
+   *
+   * The function supports the following types of arguments:
+   * - Multi-character arguments prefixed with "--" (e.g., "--option").
+   * - Single-character arguments prefixed with "-" (e.g., "-o").
+   * - Non-flag arguments (e.g., "filename").
+   *
+   * Behavior:
+   * - If a multi-character or single-character argument is recognized, its
+   *   corresponding handler is invoked. If the argument expects a value, the
+   *   next argument is passed to the handler; otherwise, `nullptr` is passed.
+   * - If an argument is unrecognized, a message is printed to `std::cout`.
+   * - If a non-flag argument is encountered and a handler for non-flag
+   *   arguments (`noargArgument`) is defined, the handler is invoked only once.
+   * - Subsequent unrecognized non-flag arguments are reported as unknown.
+   *
+   * Notes:
+   * - The function assumes that `mca` and `sca` are mappings (e.g., `std::map`
+   *   or similar) that associate argument names/characters with their respective
+   *   handlers (functions or callable objects).
+   * - The `noargArgument` is a callable object or function that handles the
+   *   first non-flag argument.
+   */
+  void cycleArguments(const int argc, const char** argv);
+};
+#endif
