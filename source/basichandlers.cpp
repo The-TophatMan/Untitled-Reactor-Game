@@ -14,6 +14,7 @@ void help(const string&, vector<void*>) {
 
 void logTest(const string&, vector<void*> pass) {
   Logging* logger = static_cast<Logging*>(pass[0]);
+  cout << &logger << endl;
   logger->log("I'm making a note here \"Huge success\"");
   logger->log("It's hard to overstate my satisfaction");
   logger->log("Aperture Science", 1);
@@ -55,7 +56,8 @@ void logTest(const string&, vector<void*> pass) {
 }
 
 void setFile(const string& output, vector<void*> pass) {
-  ofstream out(output.c_str(), ios::binary);
+  static ofstream out; // Ensure the ofstream persists
+  out.open(output.c_str(), ios::binary);
   Logging* logger = static_cast<Logging*>(pass[0]);
   logger->setOutput(&out);
 }

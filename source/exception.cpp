@@ -72,10 +72,10 @@ void Logging::log(string message, int severity) {
   else
     *output << "FATAL   ";
   *output << message << endl;
+  output->flush(); // Ensure the output is written immediately
 }
 
-void Logging::log(Exception& e)
-{
+void Logging::log(Exception& e) {
   if (!output || loggingLevel == 0 || e.getSeverity() > loggingLevel) return;
   writeTime();
   if (e.getSeverity() == 1)
@@ -85,6 +85,7 @@ void Logging::log(Exception& e)
   else
     *output << "FATAL   ";
   *output << "Exception occured at " << e.getPath() << " with code " << e.getCode() << ". Message: " << e.getMessage() << endl;
+  output->flush(); // Ensure the output is written immediately
 }
 
 void Logging::setOutput(ostream* out) { output = out; }
