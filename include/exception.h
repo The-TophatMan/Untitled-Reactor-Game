@@ -36,7 +36,7 @@ public:
    * This constructor creates a new Exception object as a copy of an existing one.
    * It performs a member-wise copy of all fields in the Exception class.
    */
-  Exception(const Exception &) = default;
+  Exception(const Exception&) = default;
 
   /**
    * @brief Move constructor for the Exception class.
@@ -45,7 +45,7 @@ public:
    * Exception instance. The default implementation is used, which performs
    * a member-wise move of the Exception object's resources.
    */
-  Exception(Exception &&) noexcept = default;
+  Exception(Exception&&) noexcept = default;
 
   /**
    * @brief Default copy assignment operator for the Exception class.
@@ -56,7 +56,7 @@ public:
    *
    * @return A reference to the assigned Exception object.
    */
-  Exception &operator=(const Exception &) = default;
+  Exception& operator=(const Exception&) = default;
 
   /**
    * @brief Move assignment operator for the Exception class.
@@ -67,7 +67,7 @@ public:
    *
    * @return A reference to the current Exception object after the move assignment.
    */
-  Exception &operator=(Exception &&) noexcept = default;
+  Exception& operator=(Exception&&) noexcept = default;
 
   /**
    * @brief Constructs an Exception object with the specified details.
@@ -96,7 +96,7 @@ public:
    *                  Note: The pointer itself is reassigned, not the value it points to.
    * @return The exception message as a constant string.
    */
-  const string getMessage(string *returnval = nullptr);
+  const string getMessage(string* returnval = nullptr);
 
   /**
    * @brief Retrieves the error code and optionally sets a pointer to it.
@@ -105,7 +105,7 @@ public:
    *                  to point to the internal error code.
    * @return The error code as an integer.
    */
-  const int getCode(int *returnval = nullptr);
+  const int getCode(int* returnval = nullptr);
 
   /**
    * @brief Retrieves the path as a string and optionally assigns it to a provided pointer.
@@ -114,7 +114,7 @@ public:
    *                  Note: The pointer itself is reassigned, not the value it points to.
    * @return The internal path as a string.
    */
-  const string getPath(string *returnval = nullptr);
+  const string getPath(string* returnval = nullptr);
 
   /**
    * @brief Retrieves the severity level of the exception.
@@ -123,7 +123,7 @@ public:
    *                  to the address of the severity value.
    * @return The severity level as an integer.
    */
-  const int getSeverity(int *returnval = nullptr);
+  const int getSeverity(int* returnval = nullptr);
 
   /**
    * @brief Overloads the << operator to append a string to the exception's path.
@@ -176,7 +176,7 @@ class Logging
 {
 private:
   int loggingLevel = 0;
-  ostream *output;
+  ostream* output;
 
   /**
    * @brief Writes the current time in HH:MM:SS format to the logging output stream.
@@ -196,7 +196,7 @@ public:
    *
    * @param other The Logging instance to copy from (deleted).
    */
-  Logging(const Logging &) = delete;
+  Logging(const Logging&) = delete;
 
   /**
    * @brief Move constructor for the Logging class.
@@ -205,7 +205,7 @@ public:
    * Logging instance. The default implementation is used, which performs
    * a member-wise move of the Logging object's resources.
    */
-  Logging(Logging &&) = default;
+  Logging(Logging&&) = default;
 
   /**
    * @brief Deleted copy assignment operator to prevent copying of Logging objects.
@@ -213,7 +213,7 @@ public:
    * This ensures that instances of the Logging class cannot be assigned
    * to one another, maintaining unique ownership or state integrity.
    */
-  Logging &operator=(const Logging &) = delete;
+  Logging& operator=(const Logging&) = delete;
 
   /**
    * @brief Default move assignment operator for the Logging class.
@@ -224,7 +224,7 @@ public:
    *
    * @return A reference to the current Logging object after the move assignment.
    */
-  Logging &operator=(Logging &&) = default;
+  Logging& operator=(Logging&&) = default;
 
   /**
    * @brief Constructs a Logging object with a specified logging level and output stream.
@@ -240,7 +240,7 @@ public:
    * @details This constructor initializes the logging level and sets the output stream
    * for writing log messages.
    */
-  Logging(int level, ostream &stream);
+  Logging(int level, ostream& stream);
 
   /**
    * @brief Logs a message with a specified severity level.
@@ -267,14 +267,14 @@ public:
    * @param e The exception object to be logged. It must provide methods to retrieve
    *          its severity level, file path, code, and message.
    */
-  void log(Exception &e);
+  void log(Exception& e);
 
   /**
    * @brief Sets the output stream for the object.
    *
    * @param out A pointer to the output stream (e.g., std::ostream) where the output will be directed.
    */
-  void setOutput(ostream *out);
+  void setOutput(ostream* out);
 
   /**
    * @brief Updates the logging level for the application.
@@ -283,6 +283,16 @@ public:
    *                 representing the desired logging verbosity or severity.
    */
   void updateLoggingLevel(const int newLevel);
+
+  /**
+   * @brief Destructor for the Logging class.
+   *
+   * This destructor is responsible for cleaning up resources
+   * by deleting the dynamically allocated `output` object.
+   * Ensure that `output` is properly initialized and not shared
+   * across multiple instances to avoid undefined behavior.
+   */
+  ~Logging();
 };
 
 #endif

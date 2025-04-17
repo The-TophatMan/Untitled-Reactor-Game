@@ -13,28 +13,28 @@ Exception::Exception(string message, string path, int code, int severity)
 
 Exception::~Exception() {}
 
-const std::string Exception::getMessage(string *returnval)
+const std::string Exception::getMessage(string* returnval)
 {
   if (returnval != nullptr)
     returnval = &message;
   return message;
 }
 
-const int Exception::getCode(int *returnval)
+const int Exception::getCode(int* returnval)
 {
   if (returnval != nullptr)
     returnval = &code;
   return code;
 }
 
-const std::string Exception::getPath(std::string *returnval)
+const std::string Exception::getPath(std::string* returnval)
 {
   if (returnval != nullptr)
     returnval = &path;
   return path;
 }
 
-const int Exception::getSeverity(int *returnval)
+const int Exception::getSeverity(int* returnval)
 {
   if (returnval != nullptr)
     returnval = &severity;
@@ -59,7 +59,7 @@ void Logging::writeTime()
   *output << "[" << logstamp << "] ";
 }
 
-Logging::Logging(int level, ostream &stream)
+Logging::Logging(int level, ostream& stream)
 {
   loggingLevel = level;
   output = &stream;
@@ -82,7 +82,7 @@ void Logging::log(string message, int severity)
   output->flush(); // Ensure the output is written immediately
 }
 
-void Logging::log(Exception &e)
+void Logging::log(Exception& e)
 {
   if (!output || loggingLevel == 0 || e.getSeverity() > loggingLevel)
     return;
@@ -97,9 +97,11 @@ void Logging::log(Exception &e)
   output->flush(); // Ensure the output is written immediately
 }
 
-void Logging::setOutput(ostream *out) { output = out; }
+void Logging::setOutput(ostream* out) { output = out; }
 
 void Logging::updateLoggingLevel(const int newLevel)
 {
   loggingLevel = newLevel;
 }
+
+Logging::~Logging() { delete output; }
