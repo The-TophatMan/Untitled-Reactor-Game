@@ -24,7 +24,7 @@ private:
   SDL_Window* window;
   SDL_Renderer* renderer;
   bool execute = true;
-  map <SDL_KeyCode, pair<function<void(const string&, vector<void*>&)>, tuple<vector<void*>, bool>>> keys;
+  map <SDL_KeyCode, pair<function<void(vector<void*>&)>, tuple<vector<void*>, bool>>> keys;
 
 protected:
 public:
