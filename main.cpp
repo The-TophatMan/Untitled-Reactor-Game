@@ -21,7 +21,7 @@ int main(int argc, char **argv)
   }
   catch (Exception &err)
   {
-    cout << "Caught exception: " << err.getMessage() << " at " << err.getPath();
+    // Add proper error handling here
   }
   exit(0);
 }

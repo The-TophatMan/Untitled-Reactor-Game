@@ -54,7 +54,7 @@ void logTest(const string &, vector<void *> pass)
   logger->log("Still alive");
   logger->log("Still alive");
   logger->log("Still alive");
-  exit(12112007);
+  throw Exception("THANK YOU FOR PARTICIPATING IN THIS ENRICHMETN CENTER ACTIVITY!!", "Aperture Science Enrichment Center", 12112007, 4);
 }
 
 void setFile(const string &output, vector<void *> pass)
