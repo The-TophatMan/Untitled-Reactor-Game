@@ -30,7 +30,7 @@ void CLA_Handler::addArgument(const string argument, const function<void(const s
     if (it != mca.end())
       throw Exception("Attempted to add argument " + finalArg +
                           " that already exists",
-                      "CLA_Handler::addArgument", -1, 0);
+                      "CLA_Handler::addArgument", -1, 2);
     mca.insert(make_pair(finalArg, make_pair(func, extradata)));
   }
 }
@@ -39,7 +39,7 @@ void CLA_Handler::addnoargArgument(function<void(const string &, vector<void *> 
 {
   if (noargArgument.first)
     throw Exception("Attempted to add noargArgument, but it already exists",
-                    "CLA_Handler::addnoargArgument", -1, 0);
+                    "CLA_Handler::addnoargArgument", -1, 2);
   noargArgument = make_pair(func, extradata);
 }
 
@@ -57,7 +57,7 @@ void CLA_Handler::modifyArgument(const string argument, const function<void(cons
   {
     auto it = sca.find(finalArg[0]);
     if (it == sca.end())
-      throw Exception("Could not modify argument " + finalArg + ", argument does not exist", "CLA_Handler::modifyArgument.1", -1, 0);
+      throw Exception("Could not modify argument " + finalArg + ", argument does not exist", "CLA_Handler::modifyArgument.1", -1, 2);
     if (newFunc != NULL)
       it->second.first = newFunc;
     if (!extradata.empty())
@@ -69,7 +69,7 @@ void CLA_Handler::modifyArgument(const string argument, const function<void(cons
     if (it == mca.end())
       throw Exception("Could not modify argument" + finalArg +
                           ", argument does not exist",
-                      "CLA_Handler::modifyArgument.1", -1, 0);
+                      "CLA_Handler::modifyArgument.1", -1, 2);
     if (newFunc != NULL)
       it->second.first = newFunc;
     if (!extradata.empty())
