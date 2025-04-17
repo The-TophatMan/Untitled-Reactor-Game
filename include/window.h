@@ -3,7 +3,10 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_video.h>
+#include <map>
+#include <vector>
 #include "exception.h"
+#include <functional>
 
 /**
  * @class Window
@@ -21,6 +24,7 @@ private:
   SDL_Window* window;
   SDL_Renderer* renderer;
   bool execute = true;
+  map <SDL_KeyCode, pair<function<void(const string&, vector<void*>&)>, tuple<vector<void*>, bool>>> keys;
 
 protected:
 public:
@@ -225,5 +229,10 @@ public:
    * the function toggles the state based on the current flag state.
    */
   void updateFlags(uint32_t flags);
+
+  void addKeyboardInput(const SDL_KeyCode key, const function<void(vector<void*>&)>& func, const bool state = 0) {
+    auto dup = keys.find(key);
+    if (dup != keys.end()) throw Exception("Tried to assign a function to a key that already has an assigned function", "Window::addKeyboardInput", -1, 1);
+  }
 };
 #endif

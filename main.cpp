@@ -21,6 +21,9 @@ int main(int argc, char** argv)
     cla.addArgument("--logging", logLevel, vector<void*>{&logger});
     cla.cycleArguments(argc, argv);
     Window game("Hello", 1920, 1080, SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS);
+    while (game.isRunning()) {
+
+    }
   }
   catch (Exception& err)
   {
