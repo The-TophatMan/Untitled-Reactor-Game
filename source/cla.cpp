@@ -199,3 +199,8 @@ void CLA_Handler::cycleArguments(const int argc, char **argv)
     }
   }
 }
+
+void CLA_Handler::modifynoargArgument(function<void(const string &, vector<void *> &)> &func)
+{
+  noargArgument.first = func;
+}

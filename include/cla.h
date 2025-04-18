@@ -172,10 +172,7 @@ public:
    * @param func A reference to a function<void(const string&, vector<void*>&)> object that will replace
    *             the current no-argument function.
    */
-  void modifynoargArgument(function<void(const string &, vector<void *> &)> &func)
-  {
-    noargArgument.first = func;
-  }
+  void modifynoargArgument(function<void(const string &, vector<void *> &)> &func);
 
   /**
    * @brief Parses and processes command-line arguments.
