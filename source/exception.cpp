@@ -14,28 +14,28 @@ Exception::Exception(string message, string path, int code, LogType severity)
 
 Exception::~Exception() {}
 
-const string Exception::Message(string* returnval)
+const string Exception::Message(string *returnval)
 {
   if (returnval != nullptr)
     returnval = &message;
   return message;
 }
 
-const int Exception::Code(int* returnval)
+const int Exception::Code(int *returnval)
 {
   if (returnval != nullptr)
     returnval = &code;
   return code;
 }
 
-const string Exception::Path(string* returnval)
+const string Exception::Path(string *returnval)
 {
   if (returnval != nullptr)
     returnval = &path;
   return path;
 }
 
-const LogType Exception::Severity(LogType* returnval)
+const LogType Exception::Severity(LogType *returnval)
 {
   if (returnval != nullptr)
     returnval = &severity;
@@ -60,7 +60,7 @@ void Logging::writeTime()
   *output << "[" << logstamp << "] ";
 }
 
-Logging::Logging(ostream& stream, initializer_list<LogType> level)
+Logging::Logging(ostream &stream, initializer_list<LogType> level)
 {
   copy(level.begin(), level.end(), loggingLevel);
   output = &stream;
@@ -70,7 +70,7 @@ void Logging::log(string message, LogType severity)
 {
   if (severity == LogType::empty)
     return;
-  for (int i = 0;i < 4;i++)
+  for (int i = 0; i < 4; i++)
     if (loggingLevel[i] == severity)
       break;
     else if (i >= 3)
@@ -79,22 +79,32 @@ void Logging::log(string message, LogType severity)
   string severityText;
   switch (severity)
   {
-  case LogType::INFO: severityText = "INFO    "; break;
-  case LogType::WARNING: severityText = "WARNING "; break;
-  case LogType::ERROR: severityText = "ERROR   "; break;
-  case LogType::FATAL: severityText = "FATAL   "; break;
-  default: severityText = "UNKNOWN "; break;
+  case LogType::INFO:
+    severityText = "INFO    ";
+    break;
+  case LogType::WARNING:
+    severityText = "WARNING ";
+    break;
+  case LogType::ERROR:
+    severityText = "ERROR   ";
+    break;
+  case LogType::FATAL:
+    severityText = "FATAL   ";
+    break;
+  default:
+    severityText = "UNKNOWN ";
+    break;
   }
   *output << severityText << message << endl;
   output->flush(); // Ensure the output is written immediately
 }
 
-void Logging::log(Exception& e)
+void Logging::log(Exception &e)
 {
   log("Exception occured at " + e.Path() + " with code " + to_string(e.Code()) + ". Message: " + e.Message(), e.Severity());
 }
 
-void Logging::setOutput(ostream* out) { output = out; }
+void Logging::setOutput(ostream *out) { output = out; }
 
 void Logging::addLoggingType(const LogType newLevel)
 {
@@ -108,7 +118,8 @@ void Logging::addLoggingType(const LogType newLevel)
     loggingLevel[0] = FATAL;
 }
 
-void Logging::removeLoggingType(const LogType oldType) {
+void Logging::removeLoggingType(const LogType oldType)
+{
   if (oldType == INFO)
     loggingLevel[3] = LogType::empty;
   else if (oldType == WARNING)
@@ -125,13 +136,13 @@ Logging::~Logging()
   {
     if (output)
     {
-      if (fstream* fileStream = dynamic_cast<fstream*>(output))
+      if (fstream *fileStream = dynamic_cast<fstream *>(output))
         if (fileStream->is_open())
           fileStream->close();
       output = nullptr;
     }
   }
-  catch (exception& err)
+  catch (exception &err)
   {
     cout << err.what();
   }

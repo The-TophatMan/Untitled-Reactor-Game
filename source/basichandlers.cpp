@@ -2,17 +2,17 @@
 #include <string>
 #include <vector>
 
-void help(const string&, vector<void*>)
+void help(const string &, vector<void *>)
 {
   cout << "Usage: ./SABWR [OPTION...]" << endl
-    << endl
-    << "-l,--logging LEVEL    What to log. Defaults to NONE. Include _AND_ between types to specify multiple logging types. Accepts: INFO, WARNING, ERROR, FATAL, ALL, NONE" << endl
-    << "-F,--file    FILE     Where to log to. Defaults to the console." << endl;
+       << endl
+       << "-l,--logging LEVEL    What to log. Defaults to NONE. Include _AND_ between types to specify multiple logging types. Accepts: INFO, WARNING, ERROR, FATAL, ALL, NONE" << endl
+       << "-F,--file    FILE     Where to log to. Defaults to the console." << endl;
 }
 
-void logTest(const string&, vector<void*> pass)
+void logTest(const string &, vector<void *> pass)
 {
-  Logging* logger = static_cast<Logging*>(pass[0]);
+  Logging *logger = static_cast<Logging *>(pass[0]);
   logger->log("This was a triumph");
   logger->log("I'm making a note here \"Huge success\"");
   logger->log("It's hard to overstate my satisfaction");
@@ -54,20 +54,33 @@ void logTest(const string&, vector<void*> pass)
   throw Exception("THANK YOU FOR PARTICIPATING IN THIS ENRICHMENT CENTER ACTIVITY!!", "Aperture Science Enrichment Center", 12112007, FATAL);
 }
 
-void setFile(const string& output, vector<void*> pass)
+void setFile(const string &output, vector<void *> pass)
 {
   static ofstream out; // Ensure the ofstream persists
   out.open(output.c_str(), ios::binary);
-  Logging* logger = static_cast<Logging*>(pass[0]);
+  Logging *logger = static_cast<Logging *>(pass[0]);
   logger->setOutput(&out);
 }
 
-void logLevel(const string& level, vector<void*> pass)
+void addLevel(Logging *logger, string type)
 {
-  Logging* logger = static_cast<Logging*>(pass[0]);
+  if (type == "INFO")
+    logger->addLoggingType(INFO);
+  else if (type == "WARNING")
+    logger->addLoggingType(WARNING);
+  else if (type == "ERROR")
+    logger->addLoggingType(ERROR);
+  else if (type == "FATAL")
+    logger->addLoggingType(FATAL);
+}
+
+void logLevel(const string &level, vector<void *> pass)
+{
+  Logging *logger = static_cast<Logging *>(pass[0]);
   if (level == "NONE")
     return;
-  if (level == "ALL") {
+  if (level == "ALL")
+  {
     logger->addLoggingType(INFO);
     logger->addLoggingType(WARNING);
     logger->addLoggingType(ERROR);
@@ -75,13 +88,11 @@ void logLevel(const string& level, vector<void*> pass)
     return;
   }
   string levelString = level;
-  for (int i = 0;i < 1023;i++) {
+  while (levelString.find("_AND_") != string::npos)
+  {
     string type = levelString.substr(0, levelString.find("_AND_"));
-    levelString = levelString.substr(levelString.find("_AND_"), levelString.size());
-    if (type == "INFO") logger->addLoggingType(INFO);
-    else if (type == "WARNING") logger->addLoggingType(WARNING);
-    else if (type == "ERROR")logger->addLoggingType(ERROR);
-    else if (type == "FATAL")logger->addLoggingType(FATAL);
-    if (!levelString.find("_AND_")) break;
+    addLevel(logger, type);
+    levelString = levelString.substr(levelString.find("_AND_") + 5, levelString.size());
   }
+  addLevel(logger, levelString);
 }
