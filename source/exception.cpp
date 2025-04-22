@@ -4,7 +4,7 @@
 #include <fstream>
 using namespace std;
 
-Exception::Exception(string message, string path, int code, int severity)
+Exception::Exception(string message, string path, int code, LogType severity)
 {
   this->message = message;
   this->path = path;
@@ -14,28 +14,28 @@ Exception::Exception(string message, string path, int code, int severity)
 
 Exception::~Exception() {}
 
-const std::string Exception::getMessage(string *returnval)
+const string Exception::Message(string* returnval)
 {
   if (returnval != nullptr)
     returnval = &message;
   return message;
 }
 
-const int Exception::getCode(int *returnval)
+const int Exception::Code(int* returnval)
 {
   if (returnval != nullptr)
     returnval = &code;
   return code;
 }
 
-const std::string Exception::getPath(std::string *returnval)
+const string Exception::Path(string* returnval)
 {
   if (returnval != nullptr)
     returnval = &path;
   return path;
 }
 
-const int Exception::getSeverity(int *returnval)
+const LogType Exception::Severity(LogType* returnval)
 {
   if (returnval != nullptr)
     returnval = &severity;
@@ -60,49 +60,63 @@ void Logging::writeTime()
   *output << "[" << logstamp << "] ";
 }
 
-Logging::Logging(int level, ostream &stream)
+Logging::Logging(ostream& stream, initializer_list<LogType> level)
 {
-  loggingLevel = level;
+  copy(level.begin(), level.end(), loggingLevel);
   output = &stream;
 }
 
-void Logging::log(string message, int severity)
+void Logging::log(string message, LogType severity)
 {
-  if (!output || loggingLevel == 0 || severity < 0 || severity > loggingLevel)
+  if (severity == LogType::empty)
     return;
+  for (int i = 0;i < 4;i++)
+    if (loggingLevel[i] == severity)
+      break;
+    else if (i >= 3)
+      return;
   writeTime();
-  if (severity == 0)
-    *output << "INFO    ";
-  else if (severity == 1)
-    *output << "WARNING ";
-  else if (severity == 2)
-    *output << "ERROR   ";
-  else
-    *output << "FATAL   ";
-  *output << message << endl;
+  string severityText;
+  switch (severity)
+  {
+  case LogType::INFO: severityText = "INFO    "; break;
+  case LogType::WARNING: severityText = "WARNING "; break;
+  case LogType::ERROR: severityText = "ERROR   "; break;
+  case LogType::FATAL: severityText = "FATAL   "; break;
+  default: severityText = "UNKNOWN "; break;
+  }
+  *output << severityText << message << endl;
   output->flush(); // Ensure the output is written immediately
 }
 
-void Logging::log(Exception &e)
+void Logging::log(Exception& e)
 {
-  if (!output || loggingLevel == 0 || e.getSeverity() > loggingLevel)
-    return;
-  writeTime();
-  if (e.getSeverity() == 1)
-    *output << "WARNING ";
-  else if (e.getSeverity() == 2)
-    *output << "ERROR   ";
-  else
-    *output << "FATAL   ";
-  *output << "Exception occured at " << e.getPath() << " with code " << e.getCode() << ". Message: " << e.getMessage() << endl;
-  output->flush(); // Ensure the output is written immediately
+  log("Exception occured at " + e.Path() + " with code " + to_string(e.Code()) + ". Message: " + e.Message(), e.Severity());
 }
 
-void Logging::setOutput(ostream *out) { output = out; }
+void Logging::setOutput(ostream* out) { output = out; }
 
-void Logging::updateLoggingLevel(const int newLevel)
+void Logging::addLoggingType(const LogType newLevel)
 {
-  loggingLevel = newLevel;
+  if (newLevel == INFO)
+    loggingLevel[3] = INFO;
+  else if (newLevel == WARNING)
+    loggingLevel[2] = WARNING;
+  else if (newLevel == ERROR)
+    loggingLevel[1] = ERROR;
+  else if (newLevel == FATAL)
+    loggingLevel[0] = FATAL;
+}
+
+void Logging::removeLoggingType(const LogType oldType) {
+  if (oldType == INFO)
+    loggingLevel[3] = LogType::empty;
+  else if (oldType == WARNING)
+    loggingLevel[2] = LogType::empty;
+  else if (oldType == ERROR)
+    loggingLevel[1] = LogType::empty;
+  else if (oldType == FATAL)
+    loggingLevel[0] = LogType::empty;
 }
 
 Logging::~Logging()
@@ -111,13 +125,13 @@ Logging::~Logging()
   {
     if (output)
     {
-      if (fstream *fileStream = dynamic_cast<fstream *>(output))
+      if (fstream* fileStream = dynamic_cast<fstream*>(output))
         if (fileStream->is_open())
           fileStream->close();
       output = nullptr;
     }
   }
-  catch (exception &err)
+  catch (exception& err)
   {
     cout << err.what();
   }

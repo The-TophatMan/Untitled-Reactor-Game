@@ -5,16 +5,21 @@
 
 using namespace std;
 
+enum LogType {
+  INFO,
+  WARNING,
+  ERROR,
+  FATAL,
+  empty
+};
+
 /**
  * @class Exception
  * @brief A class to represent exceptions with detailed information such as message, code, path, and severity.
  *
  * The Exception class provides a structured way to handle exceptions in a program. It includes
  * information about the error message, the path of the exception, an error code, and the severity
- * level of the exception. The severity levels are defined as follows:
- * - 0: Warning
- * - 1: Error
- * - 2: Fatal
+ * level of the exception.
  *
  * The class supports adding extensions to the exception path to trace the flow of the exception
  * through multiple throw-catch blocks.
@@ -27,7 +32,7 @@ private:
   string message;
   int code;
   string path;
-  int severity; // 0 - Warning, 1 - Error, 2 - Fatal
+  LogType severity;
 
 public:
   /**
@@ -36,7 +41,7 @@ public:
    * This constructor creates a new Exception object as a copy of an existing one.
    * It performs a member-wise copy of all fields in the Exception class.
    */
-  Exception(const Exception &) = default;
+  Exception(const Exception&) = default;
 
   /**
    * @brief Move constructor for the Exception class.
@@ -45,7 +50,7 @@ public:
    * Exception instance. The default implementation is used, which performs
    * a member-wise move of the Exception object's resources.
    */
-  Exception(Exception &&) noexcept = default;
+  Exception(Exception&&) noexcept = default;
 
   /**
    * @brief Default copy assignment operator for the Exception class.
@@ -56,7 +61,7 @@ public:
    *
    * @return A reference to the assigned Exception object.
    */
-  Exception &operator=(const Exception &) = default;
+  Exception& operator=(const Exception&) = default;
 
   /**
    * @brief Move assignment operator for the Exception class.
@@ -67,7 +72,7 @@ public:
    *
    * @return A reference to the current Exception object after the move assignment.
    */
-  Exception &operator=(Exception &&) noexcept = default;
+  Exception& operator=(Exception&&) noexcept = default;
 
   /**
    * @brief Constructs an Exception object with the specified details.
@@ -77,7 +82,7 @@ public:
    * @param code An integer representing the error code associated with the exception.
    * @param severity An integer indicating the severity level of the exception.
    */
-  Exception(string message, string path, int code, int severity);
+  Exception(string message, string path, int code, LogType severity);
 
   /**
    * @brief Destructor for the Exception class.
@@ -93,10 +98,10 @@ public:
    * @brief Retrieves the exception message.
    *
    * @param returnval Optional pointer to a string. If provided, it will be set to point to the internal message.
-   *                  Note: The pointer itself is reassigned, not the value it points to.
+   *
    * @return The exception message as a constant string.
    */
-  const string getMessage(string *returnval = nullptr);
+  const string Message(string* returnval = nullptr);
 
   /**
    * @brief Retrieves the error code and optionally sets a pointer to it.
@@ -105,7 +110,7 @@ public:
    *                  to point to the internal error code.
    * @return The error code as an integer.
    */
-  const int getCode(int *returnval = nullptr);
+  const int Code(int* returnval = nullptr);
 
   /**
    * @brief Retrieves the path as a string and optionally assigns it to a provided pointer.
@@ -114,7 +119,7 @@ public:
    *                  Note: The pointer itself is reassigned, not the value it points to.
    * @return The internal path as a string.
    */
-  const string getPath(string *returnval = nullptr);
+  const string Path(string* returnval = nullptr);
 
   /**
    * @brief Retrieves the severity level of the exception.
@@ -123,7 +128,7 @@ public:
    *                  to the address of the severity value.
    * @return The severity level as an integer.
    */
-  const int getSeverity(int *returnval = nullptr);
+  const LogType Severity(LogType* returnval = nullptr);
 
   /**
    * @brief Overloads the << operator to append a string to the exception's path.
@@ -150,33 +155,20 @@ public:
  * @note Copy construction and copy assignment are deleted to prevent copying
  *       of the Logging object. Move construction and move assignment are allowed.
  *
- * @details
- * - Logging levels:
- *   - 0: No Logging
- *   - 1: Fatal messages only
- *   - 2: Errors and Fatal messages
- *   - 3: Warnings, Errors, and Fatal messages
- *   - 4: Info, Warnings, Errors, and Fatal messages
- * - Message severity types:
- *   - 0: Info
- *   - 1: Warning
- *   - 2: Error
- *   - 3: Fatal
- *
  * @example
  * @code
- * Logging logger(3, cout);
- * logger.log("This is an informational message.", 0);
- * logger.log("This is a warning message.", 1);
- * logger.log("This is an error message.", 2);
- * logger.log("This is a fatal error message.", 3);
+ * Logging logger({FATAL, ERROR, WARNING, INFO}, cout);
+ * logger.log("This is an informational message.", INFO);
+ * logger.log("This is a warning message.", WARNING);
+ * logger.log("This is an error message.", ERROR);
+ * logger.log("This is a fatal error message.", FATAL);
  * @endcode
  */
 class Logging
 {
 private:
-  int loggingLevel = 0;
-  ostream *output;
+  LogType loggingLevel[4] = { LogType::empty ,LogType::empty ,LogType::empty ,LogType::empty };
+  ostream* output;
 
   /**
    * @brief Writes the current time in HH:MM:SS format to the logging output stream.
@@ -196,7 +188,7 @@ public:
    *
    * @param other The Logging instance to copy from (deleted).
    */
-  Logging(const Logging &) = delete;
+  Logging(const Logging&) = delete;
 
   /**
    * @brief Move constructor for the Logging class.
@@ -205,7 +197,7 @@ public:
    * Logging instance. The default implementation is used, which performs
    * a member-wise move of the Logging object's resources.
    */
-  Logging(Logging &&) = default;
+  Logging(Logging&&) = default;
 
   /**
    * @brief Deleted copy assignment operator to prevent copying of Logging objects.
@@ -213,7 +205,7 @@ public:
    * This ensures that instances of the Logging class cannot be assigned
    * to one another, maintaining unique ownership or state integrity.
    */
-  Logging &operator=(const Logging &) = delete;
+  Logging& operator=(const Logging&) = delete;
 
   /**
    * @brief Default move assignment operator for the Logging class.
@@ -224,7 +216,7 @@ public:
    *
    * @return A reference to the current Logging object after the move assignment.
    */
-  Logging &operator=(Logging &&) = default;
+  Logging& operator=(Logging&&) = default;
 
   /**
    * @brief Constructs a Logging object with a specified logging level and output stream.
@@ -240,7 +232,7 @@ public:
    * @details This constructor initializes the logging level and sets the output stream
    * for writing log messages.
    */
-  Logging(int level, ostream &stream);
+  Logging(ostream& stream, initializer_list<LogType> level = {});
 
   /**
    * @brief Logs a message with a specified severity level.
@@ -249,13 +241,9 @@ public:
    * (INFO, WARNING, ERROR, or FATAL) and the provided message to the output stream.
    *
    * @param message The message to log.
-   * @param severity The severity level of the message. Defaults to 0 (INFO).
-   *                 - 0: INFO
-   *                 - 1: WARNING
-   *                 - 2: ERROR
-   *                 - Any other value: FATAL
+   * @param severity The severity level of the message. Defaults to INFO.
    */
-  void log(string message, int severity = 0);
+  void log(string message, LogType severity = INFO);
 
   /**
    * @brief Logs an exception with its details, including severity, location, code, and message.
@@ -264,25 +252,46 @@ public:
    * (WARNING, ERROR, or FATAL). It then logs the file path where the exception occurred,
    * the exception code, and the associated message.
    *
-   * @param e The exception object to be logged. It must provide methods to retrieve
-   *          its severity level, file path, code, and message.
+   * @param e The exception object to be logged.
    */
-  void log(Exception &e);
+  void log(Exception& e);
 
   /**
    * @brief Sets the output stream for the object.
    *
    * @param out A pointer to the output stream (e.g., std::ostream) where the output will be directed.
    */
-  void setOutput(ostream *out);
+  void setOutput(ostream* out);
 
   /**
-   * @brief Updates the logging level for the application.
+   * @brief Adds a new logging type to the logging system.
    *
-   * @param newLevel The new logging level to be set. This should be an integer
-   *                 representing the desired logging verbosity or severity.
+   * This function updates the logging level array based on the provided
+   * logging type. The logging levels are prioritized in the following order:
+   * FATAL, ERROR, WARNING, and INFO. Each logging type is assigned to a
+   * specific index in the loggingLevel array.
+   *
+   * @param newLevel The new logging type to be added. It can be one of the
+   * following values: INFO, WARNING, ERROR, or FATAL.
    */
-  void updateLoggingLevel(const int newLevel);
+  void addLoggingType(const LogType newType);
+
+  /**
+   * @brief Removes a specific logging type from the logging level configuration.
+   *
+   * This function updates the loggingLevel array by setting the specified
+   * logging type to `LogType::empty`. The logging type to be removed is
+   * determined by the `oldType` parameter. If the provided `oldType` does
+   * not match any of the predefined logging levels (INFO, WARNING, ERROR, FATAL),
+   * no action is taken, but a warning should be added to the exception stack.
+   *
+   * @param oldType The logging type to be removed. Possible values are:
+   *                - INFO: Removes the INFO logging type.
+   *                - WARNING: Removes the WARNING logging type.
+   *                - ERROR: Removes the ERROR logging type.
+   *                - FATAL: Removes the FATAL logging type.
+   */
+  void removeLoggingType(const LogType oldType);
 
   /**
    * @brief Destructor for the Logging class.
