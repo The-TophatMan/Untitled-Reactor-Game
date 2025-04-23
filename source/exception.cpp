@@ -149,8 +149,11 @@ Logging::~Logging()
 }
 
 void Logging::log(vector<Exception> exceptionStack) {
-  for (int i = 0; i < exceptionStack.size(); i++)
+  for (int i = 0; i < exceptionStack.size(); i++) {
     log(exceptionStack[i]);
+    if (exceptionStack[i].Severity() == FATAL)
+      exit(exceptionStack[i].Code());
+  }
 }
 
 void addPath(vector<Exception>* stack, string pathtoadd) {

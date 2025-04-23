@@ -1,22 +1,24 @@
 #include "../include/window.h"
 #include "../include/exception.h"
 #include <SDL2/SDL_render.h>
+#include <SDL2/SDL_video.h>
 
 // Window implementation
 Window::Window(const char* title, const int width, const int height, uint32_t flags)
 {
   if (width <= 0 || height <= 0) {
-    exceptionStack.push_back(Exception("Provided width or height is too small", "Window::Window", -1, ERROR));
+    exceptionStack.push_back(Exception("Provided width or height is too small", "Window::Window", -1, FATAL));
     return;
   }
   window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
   if (!window) {
-    exceptionStack.push_back(Exception("Failed to create window", "Window::Window", 1, ERROR));
+    exceptionStack.push_back(Exception("Failed to create window", "Window::Window", 1, FATAL));
     return;
   }
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   if (!renderer) {
-    exceptionStack.push_back(Exception("Failed to create renderer", "Winow::Window", 1, ERROR));
+    SDL_DestroyWindow(window);
+    exceptionStack.push_back(Exception("Failed to create renderer", "Winow::Window", 1, FATAL));
     return;
   }
 }
