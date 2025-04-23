@@ -1,3 +1,16 @@
+/**
+ * @file exception.cpp
+ * @brief Implementation of the Exception and Logging classes for error handling and logging.
+ *
+ * This file contains the implementation of the Exception class, which represents
+ * an exception with a message, path, code, and severity. It also includes the Logging
+ * class, which provides functionality for logging messages and exceptions with different
+ * severity levels.
+ *
+ * @author @Ben2445Fun
+ * @date 04/23/2025
+ * @copyright All Rights Reserved
+ */
 #include "../include/exception.h"
 #include <iostream>
 #include <ctime>
@@ -51,15 +64,6 @@ Exception Exception::operator<<(string addToPath)
   return *this;
 }
 
-void Logging::writeTime()
-{
-  time_t currTime = time(NULL);
-  tm timestamp = *localtime(&currTime);
-  char logstamp[9];
-  strftime(logstamp, 9, "%H:%M:%S", &timestamp);
-  *output << "[" << logstamp << "] ";
-}
-
 Logging::Logging(ostream& stream, initializer_list<LogType> level)
 {
   copy(level.begin(), level.end(), loggingLevel);
@@ -96,12 +100,20 @@ void Logging::log(string message, LogType severity)
     break;
   }
   *output << severityText << message << endl;
-  output->flush(); // Ensure the output is written immediately
+  output->flush();
 }
 
 void Logging::log(Exception& e)
 {
   log("Exception occured at " + e.Path() + " with code " + to_string(e.Code()) + ". Message: " + e.Message(), e.Severity());
+}
+
+void Logging::log(vector<Exception> exceptionStack) {
+  for (int i = 0; i < exceptionStack.size(); i++) {
+    log(exceptionStack[i]);
+    if (exceptionStack[i].Severity() == FATAL)
+      exit(exceptionStack[i].Code());
+  }
 }
 
 void Logging::setOutput(ostream* out) { output = out; }
@@ -130,6 +142,15 @@ void Logging::removeLoggingType(const LogType oldType)
     loggingLevel[0] = LogType::empty;
 }
 
+void Logging::writeTime()
+{
+  time_t currTime = time(NULL);
+  tm timestamp = *localtime(&currTime);
+  char logstamp[9];
+  strftime(logstamp, 9, "%H:%M:%S", &timestamp);
+  *output << "[" << logstamp << "] ";
+}
+
 Logging::~Logging()
 {
   try
@@ -145,14 +166,6 @@ Logging::~Logging()
   catch (exception& err)
   {
     cout << err.what();
-  }
-}
-
-void Logging::log(vector<Exception> exceptionStack) {
-  for (int i = 0; i < exceptionStack.size(); i++) {
-    log(exceptionStack[i]);
-    if (exceptionStack[i].Severity() == FATAL)
-      exit(exceptionStack[i].Code());
   }
 }
 
