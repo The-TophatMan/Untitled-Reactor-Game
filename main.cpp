@@ -27,7 +27,6 @@ int main(int argc, char** argv)
   SDL_Event event;
   while (game.isRunning(&event))
   {
-    keyHandler.cycleKeyboardInputs(&event);
     SDL_Delay(10);
   }
   exit(0);

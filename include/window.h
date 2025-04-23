@@ -37,36 +37,30 @@ public:
   void flushErrorStack();
 };
 
-class Key {
+class Keybind {
 private:
   vector<SDL_KeyCode> keybind;
   function<void(vector<void*>&)>
-    held,
-    released;
-  vector<void*>
+    held, // What to do when the keybind is pushed down
+    released; // What to do when the keybind is released
+  vector<void*> // Extra arguments to provide the functions
     heldInputs,
     releasedInputs;
   bool active;
+
+public:
+  Keybind(vector<SDL_KeyCode> binding, function<void(vector<void*>&)> heldEvent = nullptr, function<void(vector<void*>&)> releasedEvent = nullptr, vector<void*> heldThrough = {}, vector<void*> releasedThrough = {}) {
+    keybind = binding;
+    held = heldEvent;
+    released = releasedEvent;
+    heldInputs = heldThrough;
+    releasedInputs = releasedThrough;
+  }
 };
 
 class KeyboardEventHandler
 {
 private:
-  map<SDL_KeyCode, pair<function<void(vector<void*>&)>, pair<vector<void*>, bool>>> keys;
-  vector<Exception> exceptionStack;
-
-public:
-  KeyboardEventHandler() {}
-  KeyboardEventHandler(const KeyboardEventHandler&) = default;
-  KeyboardEventHandler(KeyboardEventHandler&&) = default;
-  KeyboardEventHandler& operator=(const KeyboardEventHandler&) = default;
-  KeyboardEventHandler& operator=(KeyboardEventHandler&&) = default;
-  void addKeyboardInput(const SDL_KeyCode key, const function<void(vector<void*>&)>& func, vector<void*> extradata = {}, const bool state = 0);
-  void modifyKeyboardInput(const SDL_KeyCode key, const function<void(vector<void*>&)>& newfunc = NULL, vector<void*> extradata = {}, const int state = -1);
-  void removeKeyboardInput(const SDL_KeyCode key);
-  void cycleKeyboardInputs(SDL_Event* event);
-  vector<Exception> errorStack(vector<Exception>* errorStack = nullptr);
-  void flushErrorStack();
 };
 
 class MouseInteractable {
@@ -114,6 +108,8 @@ class StaticMouseInteractables { // Static interactables are more performant tha
 class DynamicMouseInteractables { // Mouse interactables that can be moved and changed around. O(n) performance
 
 };
+
+class MouseEventHandler {};
 
 class ControllerEventHandler // I'll implement this at some point in the "near" future
 {

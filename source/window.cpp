@@ -164,67 +164,9 @@ vector<Exception> Window::errorStack(vector<Exception>* stack) {
 
 void Window::flushErrorStack() { exceptionStack.clear(); }
 
-// KeyboardEventHandler implementation
-void KeyboardEventHandler::addKeyboardInput(const SDL_KeyCode key, const function<void(vector<void*>&)>& func, vector<void*> extradata, const bool state) // state 0 = Released, 1 = Pressed
-{
-  auto dup = keys.find(key);
-  if (dup != keys.end())
-    throw Exception("Tried to assign a function to a key that already has an "
-      "assigned function",
-      "Window::addKeyboardInput", -1, ERROR);
-  keys.insert(make_pair(key, make_pair(func, make_pair(extradata, state))));
-}
+// Keybind implementation
 
-void KeyboardEventHandler::modifyKeyboardInput(const SDL_KeyCode key, const function<void(vector<void*>&)>& newfunc, vector<void*> extradata, const int state)
-{
-  auto it = keys.find(key);
-  if (it == keys.end())
-    throw Exception("Could not modify key " + to_string(key) +
-      ", key isn't bound",
-      "Window::modifyKeyboardInput", -1, ERROR);
-  if (newfunc != NULL)
-    it->second.first = newfunc;
-  if (!extradata.empty())
-    it->second.second.first = extradata;
-  if (state == 0 || state == 1)
-    it->second.second.second = state;
-}
-
-void KeyboardEventHandler::removeKeyboardInput(const SDL_KeyCode key) { keys.erase(key); }
-
-void KeyboardEventHandler::cycleKeyboardInputs(SDL_Event* event)
-{
-  bool lctrl = false, rctrl = false, lalt = false, ralt = false, lshift = false,
-    rshift = false;
-  while (SDL_PollEvent(event))
-  {
-    if (event->key.keysym.sym == SDLK_LCTRL)
-      lctrl = true;
-    if (event->key.keysym.sym == SDLK_RCTRL)
-      rctrl = true;
-    if (event->key.keysym.sym == SDLK_LALT)
-      lalt = true;
-    if (event->key.keysym.sym == SDLK_RALT)
-      ralt = true;
-    if (event->key.keysym.sym == SDLK_LSHIFT)
-      lshift = true;
-    if (event->key.keysym.sym == SDLK_RSHIFT)
-      rshift = true;
-    if ((lalt || ralt) && event->key.keysym.sym == SDLK_F4) // Alt+F4
-      exit(0);
-    auto it = keys.find(static_cast<SDL_KeyCode>(event->key.keysym.sym));
-    if (it != keys.end() && event->key.state == it->second.second.second)
-      it->second.first(it->second.second.first);
-  }
-}
-
-vector<Exception> KeyboardEventHandler::errorStack(vector<Exception>* errorStack) {
-  if (errorStack != nullptr)
-    *errorStack = exceptionStack;
-  return exceptionStack;
-}
-
-void KeyboardEventHandler::flushErrorStack() { exceptionStack.clear(); }
+// Keyboard Event Handler implementation
 
 // Mouse Interactable implementation
 
