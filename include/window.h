@@ -7,71 +7,6 @@
 #include <functional>
 #include "exception.h"
 
-class GUIInteractables
-{
-private:
-  function<void(vector<void*>&)> func;
-  bool mouseState;
-  GUIInteractables* left = nullptr, * right = nullptr, * up = nullptr, * down = nullptr;
-  SDL_Rect* rectangle = nullptr;
-  bool active = true, stackActive = true;
-  vector<Exception*> exceptionStack;
-
-public:
-  GUIInteractables(const GUIInteractables&) = default;
-  GUIInteractables(GUIInteractables&&) = default;
-  GUIInteractables& operator=(const GUIInteractables&) = default;
-  GUIInteractables& operator=(GUIInteractables&&) = default;
-  GUIInteractables(SDL_Rect* newRect, const function<void(vector<void*>&)>& newfunc, const bool button = 1);
-  SDL_Rect* getRectangle(SDL_Rect* returnval = nullptr);
-  GUIInteractables* getLeft(GUIInteractables* returnval = nullptr);
-  GUIInteractables* getRight(GUIInteractables* returnval = nullptr);
-  GUIInteractables* getUp(GUIInteractables* returnval = nullptr);
-  GUIInteractables* getDown(GUIInteractables* returnval = nullptr);
-  void addInteractable(GUIInteractables* newInteractable);
-  GUIInteractables* findItem(const int x, const int y, GUIInteractables* returnval);
-  bool getActive(bool* returnval = nullptr);
-  void toggleActive();
-  void setActive(const bool state);
-  void changeFunction(const function<void(vector<void*>&)>& newfunc);
-  void changeButton(const int button);
-  bool getButton(bool* button = nullptr);
-  function<void(vector<void*>&)> getFunction(function<void(vector<void*>&)> returnval = nullptr);
-};
-
-class KeyboardEventHandler
-{
-private:
-  map<SDL_KeyCode, pair<function<void(vector<void*>&)>, pair<vector<void*>, bool>>> keys;
-
-public:
-  KeyboardEventHandler() {}
-  KeyboardEventHandler(const KeyboardEventHandler&) = default;
-  KeyboardEventHandler(KeyboardEventHandler&&) = default;
-  KeyboardEventHandler& operator=(const KeyboardEventHandler&) = default;
-  KeyboardEventHandler& operator=(KeyboardEventHandler&&) = default;
-  void addKeyboardInput(const SDL_KeyCode key, const function<void(vector<void*>&)>& func, vector<void*> extradata = {}, const bool state = 0);
-  void modifyKeyboardInput(const SDL_KeyCode key, const function<void(vector<void*>&)>& newfunc = NULL, vector<void*> extradata = {}, const int state = -1);
-  void removeKeyboardInput(const SDL_KeyCode key);
-  void cycleKeyboardInputs(SDL_Event* event);
-};
-
-class MouseEventHandler
-{
-private:
-  map<SDL_Rect*, function<void(vector<void*>&)>> lHoldGameInt, lPushGameInt, rHoldGameInt, rPushGameInt, mHoldGameInt, mPushGameInt;
-  map<int, GUIInteractables*> guis;
-
-public:
-  int addGUI(GUIInteractables* firstElement);
-  void addGameInteractable(SDL_Rect* rectangle, const function<void(vector<void*>&)>& func, const bool mouseState = 0, const int mouseButton = 0);
-  void cycleMouseEvents(SDL_Event* event);
-};
-
-class ControllerEventHandler
-{
-};
-
 class Window
 {
 private:
@@ -100,6 +35,89 @@ public:
   void updateFlags(uint32_t flags);
   vector<Exception> errorStack(vector<Exception>* stack = nullptr);
   void flushErrorStack();
+};
+
+class Key {
+private:
+  vector<SDL_KeyCode> keybind;
+  function<void(vector<void*>&)>
+    held,
+    released;
+  vector<void*>
+    heldInputs,
+    releasedInputs;
+  bool active;
+};
+
+class KeyboardEventHandler
+{
+private:
+  map<SDL_KeyCode, pair<function<void(vector<void*>&)>, pair<vector<void*>, bool>>> keys;
+  vector<Exception> exceptionStack;
+
+public:
+  KeyboardEventHandler() {}
+  KeyboardEventHandler(const KeyboardEventHandler&) = default;
+  KeyboardEventHandler(KeyboardEventHandler&&) = default;
+  KeyboardEventHandler& operator=(const KeyboardEventHandler&) = default;
+  KeyboardEventHandler& operator=(KeyboardEventHandler&&) = default;
+  void addKeyboardInput(const SDL_KeyCode key, const function<void(vector<void*>&)>& func, vector<void*> extradata = {}, const bool state = 0);
+  void modifyKeyboardInput(const SDL_KeyCode key, const function<void(vector<void*>&)>& newfunc = NULL, vector<void*> extradata = {}, const int state = -1);
+  void removeKeyboardInput(const SDL_KeyCode key);
+  void cycleKeyboardInputs(SDL_Event* event);
+  vector<Exception> errorStack(vector<Exception>* errorStack = nullptr);
+  void flushErrorStack();
+};
+
+class MouseInteractable {
+private:
+  function<void(vector<void*>&)> // What to do when the left/middle/right mouse button is pressed/released
+    lhFunc, // Left Hold
+    rhFunc, // Right Hold
+    mhFunc, // Middle Hold
+    lcFunc, // Left Click
+    rcFunc, // Right Click
+    mcFunc; // Middle Click
+  SDL_Rect* collision;
+  vector<Exception> exceptionStack;
+
+public:
+  MouseInteractable(const MouseInteractable&) = default;
+  MouseInteractable(MouseInteractable&&) = default;
+  MouseInteractable& operator=(const MouseInteractable&) = default;
+  MouseInteractable& operator=(MouseInteractable&&) = default;
+  MouseInteractable(
+    SDL_Rect* collisionbox,
+    const function<void(vector<void*>&)> leftclick = nullptr,
+    const function<void(vector<void*>&)> rightclick = nullptr,
+    const function<void(vector<void*>&)> middleclick = nullptr,
+    const function<void(vector<void*>&)> lefthold = nullptr,
+    const function<void(vector<void*>&)> righthold = nullptr,
+    const function<void(vector<void*>&)> middlehold = nullptr);
+
+  SDL_Rect* getCollisionBox(SDL_Rect* returnval = nullptr);
+  function<void(vector<void*>&)> getLeftClickFunction(function<void(vector<void*>&)> returnval = nullptr);
+  function<void(vector<void*>&)> getRightClickFunction(function<void(vector<void*>&)> returnval = nullptr);
+  function<void(vector<void*>&)> getMiddleClickFunction(function<void(vector<void*>&)> returnval = nullptr);
+  function<void(vector<void*>&)> getLeftHoldFunction(function<void(vector<void*>&)> returnval = nullptr);
+  function<void(vector<void*>&)> getRightHoldFunction(function<void(vector<void*>&)> returnval = nullptr);
+  function<void(vector<void*>&)> getMiddleHoldFunction(function<void(vector<void*>&)> returnval = nullptr);
+
+  vector<Exception> errorStack(vector<Exception>* errorStack = nullptr);
+  void flushErrorStack();
+};
+
+class StaticMouseInteractables { // Static interactables are more performant than dynamic interactables. O(log(n)) performance
+
+};
+
+class DynamicMouseInteractables { // Mouse interactables that can be moved and changed around. O(n) performance
+
+};
+
+class ControllerEventHandler // I'll implement this at some point in the "near" future
+{
+  // The chances of this being implemented in a reasonable time is highly unlikely
 };
 
 #endif

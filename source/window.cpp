@@ -1,7 +1,5 @@
 #include "../include/window.h"
 #include "../include/exception.h"
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_video.h>
 
 // Window implementation
 Window::Window(const char* title, const int width, const int height, uint32_t flags)
@@ -158,6 +156,14 @@ void Window::updateFlags(uint32_t flags)
   }
 }
 
+vector<Exception> Window::errorStack(vector<Exception>* stack) {
+  if (stack != nullptr)
+    *stack = exceptionStack;
+  return exceptionStack;
+}
+
+void Window::flushErrorStack() { exceptionStack.clear(); }
+
 // KeyboardEventHandler implementation
 void KeyboardEventHandler::addKeyboardInput(const SDL_KeyCode key, const function<void(vector<void*>&)>& func, vector<void*> extradata, const bool state) // state 0 = Released, 1 = Pressed
 {
@@ -212,228 +218,88 @@ void KeyboardEventHandler::cycleKeyboardInputs(SDL_Event* event)
   }
 }
 
-// GUIInteractables implementation
-SDL_Rect* GUIInteractables::getRectangle(SDL_Rect* returnval)
-{
-  if (returnval != nullptr)
-    returnval = rectangle;
-  return rectangle;
-}
-
-GUIInteractables* GUIInteractables::getLeft(GUIInteractables* returnval)
-{
-  if (returnval != nullptr)
-    returnval = left;
-  return left;
-}
-
-GUIInteractables* GUIInteractables::getRight(GUIInteractables* returnval)
-{
-  if (returnval != nullptr)
-    returnval = right;
-  return right;
-}
-
-GUIInteractables* GUIInteractables::getUp(GUIInteractables* returnval)
-{
-  if (returnval != nullptr)
-    returnval = up;
-  return up;
-}
-
-GUIInteractables* GUIInteractables::getDown(GUIInteractables* returnval)
-{
-  if (returnval != nullptr)
-    returnval = down;
-  return down;
-}
-
-void GUIInteractables::addInteractable(GUIInteractables* newInteractable)
-{
-  if (newInteractable->getRectangle()->x < rectangle->x) // If on left side
-  {
-    if (left == nullptr)
-      left = newInteractable;
-    else
-      left->addInteractable(newInteractable);
-  }
-  else if (newInteractable->getRectangle()->x +
-    newInteractable->getRectangle()->w >
-    rectangle->x + rectangle->w) // If on right side
-  {
-    if (right == nullptr)
-      right = newInteractable;
-    else
-      right->addInteractable(newInteractable);
-  }
-  else if (newInteractable->getRectangle()->y < rectangle->y) // If above
-  {
-    if (up == nullptr)
-      up = newInteractable;
-    else
-      up->addInteractable(newInteractable);
-  }
-  else if (newInteractable->getRectangle()->y +
-    newInteractable->getRectangle()->h >
-    rectangle->y + rectangle->h) // If below
-  {
-    if (down == nullptr)
-      down = newInteractable;
-    else
-      down->addInteractable(newInteractable);
-  }
-  else
-    throw Exception("Attempted to add GUI element that already exists or overlaps another GUI element", "GUIInteractables::addInteractable", -1, ERROR);
-}
-
-GUIInteractables* GUIInteractables::findItem(const int x, const int y, GUIInteractables* returnval)
-{
-  if (x < rectangle->x)
-  {
-    if (left == nullptr || !stackActive)
-      return nullptr;
-    else
-      return findItem(x, y, returnval);
-  }
-  else if (x > rectangle->x + rectangle->w)
-  {
-    if (right == nullptr || !stackActive)
-      return nullptr;
-    else
-      return findItem(x, y, returnval);
-  }
-  else if (y < rectangle->y)
-  {
-    if (up == nullptr || !stackActive)
-      return nullptr;
-    return findItem(x, y, returnval);
-  }
-  else if (y > rectangle->y + rectangle->h)
-  {
-    if (down == nullptr || !stackActive)
-      return nullptr;
-    else
-      return findItem(x, y, returnval);
-  }
-  else
-  {
-    if (active)
-      return this;
-    else
-      return nullptr;
-  }
-}
-
-bool GUIInteractables::getActive(bool* returnval)
-{
-  if (returnval != nullptr)
-    returnval = &active;
-  return active;
-}
-
-void GUIInteractables::toggleActive() { active = !active; }
-
-void GUIInteractables::setActive(const bool state) { active = state; }
-
-void GUIInteractables::changeFunction(const function<void(vector<void*>&)>& newfunc)
-{
-  func = newfunc;
-}
-
-void GUIInteractables::changeButton(const int button)
-{
-  if (button == 0 || button == 1 || button == 2)
-    mouseState = button;
-}
-
-bool GUIInteractables::getButton(bool* button)
-{
-  if (button != nullptr)
-    button = &mouseState;
-  return mouseState;
-}
-
-function<void(vector<void*>&)> GUIInteractables::getFunction(function<void(vector<void*>&)> returnval)
-{
-  if (returnval != nullptr)
-    returnval = func;
-  return func;
-}
-
-GUIInteractables::GUIInteractables(SDL_Rect* newRect, const function<void(vector<void*>&)>& newfunc, const bool button)
-{
-  rectangle = newRect;
-  func = newfunc;
-  mouseState = button;
-}
-
-// MouseEventHandler implementation
-int MouseEventHandler::addGUI(GUIInteractables* firstElement)
-{
-  guis.insert(make_pair(guis.size() + 1, firstElement));
-  return guis.size(); // GUI uuid
-}
-
-void MouseEventHandler::addGameInteractable(SDL_Rect* rectangle, const function<void(vector<void*>&)>& func, const bool mouseState, const int mouseButton)
-{
-  if (mouseState)
-  {
-    if (mouseButton == 0)
-    {
-      auto it = lHoldGameInt.find(rectangle);
-      if (it != lHoldGameInt.end())
-        throw Exception("Attempted to add a game interactable that already exists", "Window::addGameInteractable", -1, ERROR);
-      lHoldGameInt.insert(make_pair(rectangle, func));
-    }
-    else if (mouseButton == 1)
-    {
-      auto it = mHoldGameInt.find(rectangle);
-      if (it != mHoldGameInt.end())
-        throw Exception("Attempted to add a game interactable that already exists", "Window::addGameInteractable", -1, ERROR);
-      mHoldGameInt.insert(make_pair(rectangle, func));
-    }
-    else if (mouseButton == 2)
-    {
-      auto it = rHoldGameInt.find(rectangle);
-      if (it != rHoldGameInt.end())
-        throw Exception("Attempted to add a game interactable that already exists", "Window::addGameInteractable", -1, ERROR);
-      rHoldGameInt.insert(make_pair(rectangle, func));
-    }
-    else
-      throw Exception("Attempted to add a game interactable with a mouse button that doesn't exist", "Window::addGameInteractable", -1, ERROR);
-  }
-  else
-  {
-    if (mouseButton == 0)
-    {
-      auto it = lPushGameInt.find(rectangle);
-      if (it != lPushGameInt.end())
-        throw Exception("Attempted to add a game interactable that already exists", "Window::addGameInteractable", -1, ERROR);
-      lPushGameInt.insert(make_pair(rectangle, func));
-    }
-    else if (mouseButton == 1)
-    {
-      auto it = mPushGameInt.find(rectangle);
-      if (it != mPushGameInt.end())
-        throw Exception("Attempted to add a game interactable that already exists", "Window::addGameInteractable", -1, ERROR);
-      mPushGameInt.insert(make_pair(rectangle, func));
-    }
-    else if (mouseButton == 2)
-    {
-      auto it = rPushGameInt.find(rectangle);
-      if (it != rPushGameInt.end())
-        throw Exception("Attempted to add a game interactable that already exists", "Window::addGameInteractable", -1, ERROR);
-      rPushGameInt.insert(make_pair(rectangle, func));
-    }
-    else
-      throw Exception("Attempted to add a game interactable with a mouse button that doesn't exist", "Window::addGameInteractable", -1, ERROR);
-  }
-}
-
-vector<Exception> Window::errorStack(vector<Exception>* stack) {
-  if (stack != nullptr)
-    *stack = exceptionStack;
+vector<Exception> KeyboardEventHandler::errorStack(vector<Exception>* errorStack) {
+  if (errorStack != nullptr)
+    *errorStack = exceptionStack;
   return exceptionStack;
 }
 
-void Window::flushErrorStack() { exceptionStack.clear(); }
+void KeyboardEventHandler::flushErrorStack() { exceptionStack.clear(); }
+
+// Mouse Interactable implementation
+
+MouseInteractable::MouseInteractable(
+  SDL_Rect* collisionbox, const function<void(vector<void*>&)> leftclick,
+  const function<void(vector<void*>&)> rightclick,
+  const function<void(vector<void*>&)> middleclick,
+  const function<void(vector<void*>&)> lefthold,
+  const function<void(vector<void*>&)> righthold,
+  const function<void(vector<void*>&)> middlehold) {
+  lhFunc = lefthold;
+  rhFunc = righthold;
+  mhFunc = middlehold;
+  lcFunc = leftclick;
+  rcFunc = rightclick;
+  mcFunc = middleclick;
+  if (!collisionbox) {
+    exceptionStack.push_back(Exception("Failed to initialize collision box",
+      "MouseInteractable::MouseInteractable",
+      -1, ERROR));
+    return;
+  }
+  collision = collisionbox;
+  if (collision != collisionbox)
+    exceptionStack.push_back(Exception("Failed to save collision box",
+      "MouseInteractable::MouseInteractable",
+      -1, ERROR));
+}
+
+SDL_Rect* MouseInteractable::getCollisionBox(SDL_Rect* returnval) {
+  if (returnval != nullptr)
+    returnval = collision;
+  return collision;
+}
+
+function<void(vector<void*>&)> MouseInteractable::getLeftClickFunction(function<void(vector<void*>&)> returnval) {
+  if (returnval != nullptr)
+    returnval = lcFunc;
+  return lcFunc;
+}
+
+function<void(vector<void*>&)> MouseInteractable::getRightClickFunction(function<void(vector<void*>&)> returnval) {
+  if (returnval != nullptr)
+    returnval = rcFunc;
+  return rcFunc;
+}
+
+function<void(vector<void*>&)> MouseInteractable::getMiddleClickFunction(function<void(vector<void*>&)> returnval) {
+  if (returnval != nullptr)
+    returnval = mcFunc;
+  return mcFunc;
+}
+
+function<void(vector<void*>&)> MouseInteractable::getLeftHoldFunction(function<void(vector<void*>&)> returnval) {
+  if (returnval != nullptr)
+    returnval = lhFunc;
+  return lhFunc;
+}
+
+function<void(vector<void*>&)> MouseInteractable::getRightHoldFunction(function<void(vector<void*>&)> returnval) {
+  if (returnval != nullptr)
+    returnval = rhFunc;
+  return rhFunc;
+}
+
+function<void(vector<void*>&)> MouseInteractable::getMiddleHoldFunction(function<void(vector<void*>&)> returnval) {
+  if (returnval != nullptr)
+    returnval = mhFunc;
+  return mhFunc;
+}
+
+std::vector<Exception> MouseInteractable::errorStack(vector<Exception>* errorStack) {
+  if (errorStack != nullptr)
+    *errorStack = exceptionStack;
+  return exceptionStack;
+}
+
+void MouseInteractable::flushErrorStack() { exceptionStack.clear(); }
