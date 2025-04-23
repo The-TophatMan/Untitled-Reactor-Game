@@ -18,7 +18,7 @@ int main(int argc, char** argv)
   cla.addArgument("-l", logLevel, vector<void*>{&logger});
   cla.addArgument("--logging", logLevel, vector<void*>{&logger});
   cla.cycleArguments(argc, argv);
-  Window game("Semi-Accurate Boiling Water Reactor", -2, 1080);
+  Window game("Untitled Reactor Game");
   vector<Exception> gameStack = game.errorStack();
   game.flushErrorStack();
   addPath(&gameStack, "game");
