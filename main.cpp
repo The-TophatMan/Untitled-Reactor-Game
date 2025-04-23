@@ -8,28 +8,23 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-  try
+  Logging logger(cout);
+  CLA_Handler cla;
+  cla.addArgument("-h", help);
+  cla.addArgument("--help", help);
+  cla.addArgument("-F", setFile, vector<void*>{&logger});
+  cla.addArgument("--file", setFile, vector<void*>{&logger});
+  cla.addArgument("-p", logTest, vector<void*>{&logger});
+  cla.addArgument("-l", logLevel, vector<void*>{&logger});
+  cla.addArgument("--logging", logLevel, vector<void*>{&logger});
+  cla.cycleArguments(argc, argv);
+  Window game("Semi-Accurate Boiling Water Reactor", 1920, 1080);
+  KeyboardEventHandler keyHandler;
+  SDL_Event event;
+  while (game.isRunning(&event))
   {
-    Logging logger(cout);
-    CLA_Handler cla;
-    cla.addArgument("-h", help);
-    cla.addArgument("--help", help);
-    cla.addArgument("-F", setFile, vector<void*>{&logger});
-    cla.addArgument("--file", setFile, vector<void*>{&logger});
-    cla.addArgument("-p", logTest, vector<void*>{&logger});
-    cla.addArgument("-l", logLevel, vector<void*>{&logger});
-    cla.addArgument("--logging", logLevel, vector<void*>{&logger});
-    cla.cycleArguments(argc, argv);
-    Window game("Semi-Accurate Boiling Water Reactor", 1920, 1080);
-    SDL_Event event;
-    // while (game.isRunning())
-    // {
-    //   SDL_Delay(10);
-    // }
-  }
-  catch (Exception& err)
-  {
-    // Add proper error handling here
+    keyHandler.cycleKeyboardInputs(&event);
+    SDL_Delay(10);
   }
   exit(0);
 }

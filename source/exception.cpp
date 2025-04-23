@@ -14,28 +14,28 @@ Exception::Exception(string message, string path, int code, LogType severity)
 
 Exception::~Exception() {}
 
-const string Exception::Message(string *returnval)
+const string Exception::Message(string* returnval)
 {
   if (returnval != nullptr)
     returnval = &message;
   return message;
 }
 
-const int Exception::Code(int *returnval)
+const int Exception::Code(int* returnval)
 {
   if (returnval != nullptr)
     returnval = &code;
   return code;
 }
 
-const string Exception::Path(string *returnval)
+const string Exception::Path(string* returnval)
 {
   if (returnval != nullptr)
     returnval = &path;
   return path;
 }
 
-const LogType Exception::Severity(LogType *returnval)
+const LogType Exception::Severity(LogType* returnval)
 {
   if (returnval != nullptr)
     returnval = &severity;
@@ -60,7 +60,7 @@ void Logging::writeTime()
   *output << "[" << logstamp << "] ";
 }
 
-Logging::Logging(ostream &stream, initializer_list<LogType> level)
+Logging::Logging(ostream& stream, initializer_list<LogType> level)
 {
   copy(level.begin(), level.end(), loggingLevel);
   output = &stream;
@@ -99,12 +99,12 @@ void Logging::log(string message, LogType severity)
   output->flush(); // Ensure the output is written immediately
 }
 
-void Logging::log(Exception &e)
+void Logging::log(Exception& e)
 {
   log("Exception occured at " + e.Path() + " with code " + to_string(e.Code()) + ". Message: " + e.Message(), e.Severity());
 }
 
-void Logging::setOutput(ostream *out) { output = out; }
+void Logging::setOutput(ostream* out) { output = out; }
 
 void Logging::addLoggingType(const LogType newLevel)
 {
@@ -136,14 +136,24 @@ Logging::~Logging()
   {
     if (output)
     {
-      if (fstream *fileStream = dynamic_cast<fstream *>(output))
+      if (fstream* fileStream = dynamic_cast<fstream*>(output))
         if (fileStream->is_open())
           fileStream->close();
       output = nullptr;
     }
   }
-  catch (exception &err)
+  catch (exception& err)
   {
     cout << err.what();
   }
+}
+
+void Logging::log(vector<Exception> exceptionStack) {
+  for (int i = 0; i < exceptionStack.size(); i++)
+    log(exceptionStack[i]);
+}
+
+void addPath(vector<Exception>* stack, string pathtoadd) {
+  for (int i = 0; i < stack->size(); i++)
+    (*stack)[i] << pathtoadd;
 }

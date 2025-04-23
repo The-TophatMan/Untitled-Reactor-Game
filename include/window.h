@@ -43,11 +43,12 @@ class Window;
 class GUIInteractables
 {
 private:
-  function<void(vector<void *> &)> func;
+  function<void(vector<void*>&)> func;
   bool mouseState;
-  GUIInteractables *left = nullptr, *right = nullptr, *up = nullptr, *down = nullptr;
-  SDL_Rect *rectangle = nullptr;
+  GUIInteractables* left = nullptr, * right = nullptr, * up = nullptr, * down = nullptr;
+  SDL_Rect* rectangle = nullptr;
   bool active = true, stackActive = true;
+  vector<Exception*> exceptionStack;
 
 public:
   /**
@@ -58,7 +59,7 @@ public:
    *                The function takes a reference to a vector of void pointers as its argument.
    * @param button Optional parameter specifying the mouse state. Defaults to 1 (true).
    */
-  GUIInteractables(SDL_Rect *newRect, const function<void(vector<void *> &)> &newfunc, const bool button = 1);
+  GUIInteractables(SDL_Rect* newRect, const function<void(vector<void*>&)>& newfunc, const bool button = 1);
 
   /**
    * @brief Retrieves the SDL_Rect object associated with this instance.
@@ -71,7 +72,7 @@ public:
    *       internal rectangle's value. The function always returns the internal
    *       rectangle pointer.
    */
-  SDL_Rect *getRectangle(SDL_Rect *returnval = nullptr);
+  SDL_Rect* getRectangle(SDL_Rect* returnval = nullptr);
 
   /**
    * @brief Retrieves the left GUIInteractables object.
@@ -86,7 +87,7 @@ public:
    *
    * @return GUIInteractables* Pointer to the left GUIInteractables object.
    */
-  GUIInteractables *getLeft(GUIInteractables *returnval = nullptr);
+  GUIInteractables* getLeft(GUIInteractables* returnval = nullptr);
 
   /**
    * @brief Retrieves the right GUIInteractables object.
@@ -99,7 +100,7 @@ public:
    *                  it will be set to the `right` object.
    * @return GUIInteractables* Pointer to the `right` GUIInteractables object.
    */
-  GUIInteractables *getRight(GUIInteractables *returnval = nullptr);
+  GUIInteractables* getRight(GUIInteractables* returnval = nullptr);
 
   /**
    * @brief Retrieves the GUIInteractables object located above the current one.
@@ -112,7 +113,7 @@ public:
    *                  it will be set to the `up` object.
    * @return GUIInteractables* Pointer to the `up` GUIInteractables object.
    */
-  GUIInteractables *getUp(GUIInteractables *returnval = nullptr);
+  GUIInteractables* getUp(GUIInteractables* returnval = nullptr);
 
   /**
    * @brief Retrieves the GUIInteractables object located below the current one.
@@ -126,7 +127,7 @@ public:
    *                  it will be updated to point to the `down` object.
    * @return GUIInteractables* Pointer to the `down` object.
    */
-  GUIInteractables *getDown(GUIInteractables *returnval = nullptr);
+  GUIInteractables* getDown(GUIInteractables* returnval = nullptr);
 
   /**
    * @brief Adds a new GUIInteractable to the current GUI structure based on its position.
@@ -149,7 +150,7 @@ public:
    * If the respective child node is already occupied, the function recursively calls
    * `addInteractable` on the corresponding child node.
    */
-  void addInteractable(GUIInteractables *newInteractable);
+  void addInteractable(GUIInteractables* newInteractable);
 
   /**
    * @brief Finds a GUIInteractable item based on the given x and y coordinates.
@@ -167,7 +168,7 @@ public:
    * @return A pointer to the GUIInteractables object that matches the given
    *         coordinates, or nullptr if no matching item is found.
    */
-  GUIInteractables *findItem(const int x, const int y, GUIInteractables *returnval);
+  GUIInteractables* findItem(const int x, const int y, GUIInteractables* returnval);
 
   /**
    * @brief Retrieves the active state of the window.
@@ -180,7 +181,7 @@ public:
    *                  set to point to the `active` member variable.
    * @return true if the window is active, false otherwise.
    */
-  bool getActive(bool *returnval = nullptr);
+  bool getActive(bool* returnval = nullptr);
 
   /**
    * @brief Toggles the active state of the object.
@@ -206,7 +207,7 @@ public:
    * @param newfunc A constant reference to the new function to be assigned.
    *                The function should have the signature `void(vector<void *> &)`.
    */
-  void changeFunction(const function<void(vector<void *> &)> &newfunc);
+  void changeFunction(const function<void(vector<void*>&)>& newfunc);
 
   /**
    * @brief Changes the current mouse button state if the provided button is valid.
@@ -229,7 +230,7 @@ public:
    *               will be stored. If nullptr is passed, no update is performed.
    * @return The current mouse button state as an integer.
    */
-  bool getButton(bool *button = nullptr);
+  bool getButton(bool* button = nullptr);
 
   /**
    * @brief Retrieves the stored function and optionally assigns it to the provided function reference.
@@ -238,7 +239,7 @@ public:
    *                  Defaults to nullptr.
    * @return The stored function of type `function<void(vector<void *> &)>`.
    */
-  function<void(vector<void *> &)> getFunction(function<void(vector<void *> &)> returnval = nullptr);
+  function<void(vector<void*>&)> getFunction(function<void(vector<void*>&)> returnval = nullptr);
 };
 
 /**
@@ -248,7 +249,7 @@ public:
 class KeyboardEventHandler
 {
 private:
-  map<SDL_KeyCode, pair<function<void(vector<void *> &)>, pair<vector<void *>, bool>>> keys;
+  map<SDL_KeyCode, pair<function<void(vector<void*>&)>, pair<vector<void*>, bool>>> keys;
 
 public:
   /**
@@ -258,7 +259,7 @@ public:
    * the state of an existing instance. It performs a member-wise copy of all
    * fields in the class.
    */
-  KeyboardEventHandler(const KeyboardEventHandler &) = default;
+  KeyboardEventHandler(const KeyboardEventHandler&) = default;
 
   /**
    * @brief Move constructor for the KeyboardEventHandler class.
@@ -268,7 +269,7 @@ public:
    * `default`, meaning the compiler will generate the implementation
    * automatically.
    */
-  KeyboardEventHandler(KeyboardEventHandler &&) = default;
+  KeyboardEventHandler(KeyboardEventHandler&&) = default;
 
   /**
    * @brief Default assignment operator for the KeyboardEventHandler class.
@@ -279,7 +280,7 @@ public:
    *
    * @return A reference to the assigned KeyboardEventHandler object.
    */
-  KeyboardEventHandler &operator=(const KeyboardEventHandler &) = default;
+  KeyboardEventHandler& operator=(const KeyboardEventHandler&) = default;
 
   /**
    * @brief Default move assignment operator for the KeyboardEventHandler class.
@@ -290,7 +291,7 @@ public:
    *
    * @return A reference to the current instance after the move assignment.
    */
-  KeyboardEventHandler &operator=(KeyboardEventHandler &&) = default;
+  KeyboardEventHandler& operator=(KeyboardEventHandler&&) = default;
 
   /**
    * @brief Default constructor for the KeyboardEventHandler class.
@@ -318,7 +319,7 @@ public:
    *
    * @throws Exception If the specified key already has an assigned function.
    */
-  void addKeyboardInput(const SDL_KeyCode key, const function<void(vector<void *> &)> &func, vector<void *> extradata = {}, const bool state = 0); // state 0 = Released, 1 = Pressed
+  void addKeyboardInput(const SDL_KeyCode key, const function<void(vector<void*>&)>& func, vector<void*> extradata = {}, const bool state = 0); // state 0 = Released, 1 = Pressed
 
   /**
    * @brief Modifies the behavior of a keyboard input binding.
@@ -340,7 +341,7 @@ public:
    * @throws Exception If the key is not already bound, an exception is thrown with an
    *                   appropriate error message.
    */
-  void modifyKeyboardInput(const SDL_KeyCode key, const function<void(vector<void *> &)> &newfunc = NULL, vector<void *> extradata = {}, const int state = -1);
+  void modifyKeyboardInput(const SDL_KeyCode key, const function<void(vector<void*>&)>& newfunc = NULL, vector<void*> extradata = {}, const int state = -1);
 
   /**
    * @brief Removes a specific keyboard input from the tracked keys.
@@ -369,7 +370,7 @@ public:
    * - Executes custom actions for keys found in the `keys` map if their state
    *   matches the expected state.
    */
-  void cycleKeyboardInputs(SDL_Event *event);
+  void cycleKeyboardInputs(SDL_Event* event);
 };
 
 /**
@@ -379,8 +380,8 @@ public:
 class MouseEventHandler
 {
 private:
-  map<SDL_Rect *, function<void(vector<void *> &)>> lHoldGameInt, lPushGameInt, rHoldGameInt, rPushGameInt, mHoldGameInt, mPushGameInt;
-  map<int, GUIInteractables *> guis;
+  map<SDL_Rect*, function<void(vector<void*>&)>> lHoldGameInt, lPushGameInt, rHoldGameInt, rPushGameInt, mHoldGameInt, mPushGameInt;
+  map<int, GUIInteractables*> guis;
 
 public:
   /**
@@ -389,7 +390,7 @@ public:
    * @param firstElement A pointer to the GUIInteractables object to be added.
    * @return int The unique identifier (UUID) assigned to the added GUI element.
    */
-  int addGUI(GUIInteractables *firstElement);
+  int addGUI(GUIInteractables* firstElement);
 
   /**
    * @brief Adds a game interactable to the appropriate container based on mouse state and button.
@@ -412,9 +413,9 @@ public:
    * @throws Exception If the rectangle already exists in the target container.
    * @throws Exception If an invalid mouse button is provided.
    */
-  void addGameInteractable(SDL_Rect *rectangle, const function<void(vector<void *> &)> &func, const bool mouseState = 0, const int mouseButton = 0);
+  void addGameInteractable(SDL_Rect* rectangle, const function<void(vector<void*>&)>& func, const bool mouseState = 0, const int mouseButton = 0);
 
-  void cycleMouseEvents(SDL_Event *event)
+  void cycleMouseEvents(SDL_Event* event)
   {
     while (SDL_PollEvent(event))
     {
@@ -442,9 +443,10 @@ public:
 class Window
 {
 private:
-  SDL_Window *window;
-  SDL_Renderer *renderer;
+  SDL_Window* window;
+  SDL_Renderer* renderer;
   bool execute = true;
+  vector<Exception> exceptionStack;
 
 public:
   /**
@@ -453,7 +455,7 @@ public:
    * This constructor performs a member-wise copy of the Window object,
    * copying all non-static members from the source object to the new object.
    */
-  Window(const Window &) = default;
+  Window(const Window&) = default;
 
   /**
    * @brief Deleted move constructor to prevent moving of Window objects.
@@ -461,7 +463,7 @@ public:
    * This ensures that Window instances cannot be moved, which might be
    * necessary to maintain resource ownership or other invariants.
    */
-  Window(Window &&) = delete;
+  Window(Window&&) = delete;
 
   /**
    * @brief Default copy assignment operator for the Window class.
@@ -473,7 +475,7 @@ public:
    * @param other The Window object to copy from.
    * @return A reference to the current Window object after assignment.
    */
-  Window &operator=(const Window &) = default;
+  Window& operator=(const Window&) = default;
 
   /**
    * @brief Deleted move assignment operator for the Window class.
@@ -482,7 +484,7 @@ public:
    * It ensures that the Window instance cannot be reassigned from another instance
    * through move semantics, preserving its integrity and preventing unintended behavior.
    */
-  Window &operator=(Window &&) = delete;
+  Window& operator=(Window&&) = delete;
 
   /**
    * @brief Constructs a Window object and initializes an SDL window and renderer.
@@ -498,7 +500,7 @@ public:
    *
    * @throws Exception If the SDL window or renderer fails to initialize.
    */
-  Window(const char *title = "", const int width = 1280, const int height = 720, uint32_t flags = SDL_WINDOW_SHOWN);
+  Window(const char* title = "", const int width = 1280, const int height = 720, uint32_t flags = SDL_WINDOW_SHOWN);
 
   /**
    * @brief Destructor for the Window class.
@@ -516,7 +518,7 @@ public:
    *                  the value of the internal renderer. Defaults to nullptr.
    * @return SDL_Renderer* Pointer to the internal SDL_Renderer instance.
    */
-  SDL_Renderer *getRenderer(SDL_Renderer *returnval = nullptr);
+  SDL_Renderer* getRenderer(SDL_Renderer* returnval = nullptr);
 
   /**
    * @brief Retrieves the SDL_Window instance associated with the game.
@@ -529,7 +531,7 @@ public:
    *                   be assigned the value of the current window.
    * @return SDL_Window* The current SDL_Window instance.
    */
-  SDL_Window *getWindow(SDL_Window *returnval = nullptr);
+  SDL_Window* getWindow(SDL_Window* returnval = nullptr);
 
   /**
    * @brief Checks if the game is currently running and optionally sets a return value.
@@ -538,7 +540,7 @@ public:
    *                  current state of the game (true if running, false otherwise).
    * @return true if the game is running, false otherwise.
    */
-  const bool isRunning(bool *returnval = nullptr);
+  const bool isRunning(SDL_Event* event, bool* returnval = nullptr);
 
   /**
    * @brief Replaces the current SDL_Renderer with a new one.
@@ -557,7 +559,7 @@ public:
    * @note The function uses exception handling to manage errors and ensure
    *       the integrity of the renderer state.
    */
-  void replaceRenderer(SDL_Renderer *newRenderer);
+  void replaceRenderer(SDL_Renderer* newRenderer);
 
   /**
    * @brief Replaces the current SDL_Renderer with a new one.
@@ -576,7 +578,7 @@ public:
    * @note The function uses exception handling to manage errors and ensure
    *       the integrity of the renderer state.
    */
-  void replaceWindow(SDL_Window *newWindow);
+  void replaceWindow(SDL_Window* newWindow);
 
   /**
    * @brief Toggles the execution state.
@@ -611,7 +613,7 @@ public:
    * @throws Exception If the window title could not be changed. The exception
    *         contains the error message, the function name, and error codes.
    */
-  void changeTitle(const char *newTitle);
+  void changeTitle(const char* newTitle);
 
   /**
    * @brief Changes the resolution of the SDL window.
@@ -648,6 +650,29 @@ public:
    * the function toggles the state based on the current flag state.
    */
   void updateFlags(uint32_t flags);
+
+  /**
+   * @brief Retrieves the current stack of exceptions.
+   *
+   * This function returns the current exception stack and optionally copies it
+   * into a provided stack. If a non-null pointer is passed as the parameter,
+   * the exception stack is copied into the provided stack.
+   *
+   * @param stack A pointer to a vector of Exception objects. If not null,
+   *              the current exception stack will be copied into this vector.
+   *              Defaults to nullptr.
+   * @return A vector containing the current exception stack.
+   */
+  vector<Exception> errorStack(vector<Exception>* stack = nullptr);
+
+  /**
+   * @brief Clears all exceptions from the error stack.
+   *
+   * This function empties the `exceptionStack`, removing all stored exceptions.
+   * It is useful for resetting the error state or preparing the stack for new
+   * error handling operations.
+   */
+  void flushErrorStack();
 };
 
 #endif
