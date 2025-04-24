@@ -78,4 +78,6 @@ void logTest(const string &, vector<void *> pass);
  *       Undefined behavior may occur if these assumptions are violated.
  */
 void logLevel(const string &level, vector<void *> pass);
+
+void exceptionTest(const string &, vector<void *> logging);
 #endif
