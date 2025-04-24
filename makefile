@@ -11,7 +11,7 @@ CPPSOURCE = ${wildcard source/*.cpp}
 OBJECTS = ${CSOURCE:.cpp=.o}
 
 # Executables
-EXECUTABLE = SABWR.exe
+EXECUTABLE = URG.exe
 DLLOBJECTS = ${DLLSOURCE:include/%.h=lib/lib%.so}
 DLLS = ${DLLOBJECTS:lib/lib%.so=-l%}
 

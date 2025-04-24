@@ -105,7 +105,8 @@ void Logging::log(string message, LogType severity)
 
 void Logging::log(Exception& e)
 {
-  log("Exception occured at " + e.Path() + " with code " + to_string(e.Code()) + ". Message: " + e.Message(), e.Severity());
+  if (e.Severity() == INFO) log(e.Path() + " > " + e.Message(), INFO);
+  else log(e.Path() + " > " + e.Message() + ", Code " + to_string(e.Code()), e.Severity());
 }
 
 void Logging::log(vector<Exception> exceptionStack) {

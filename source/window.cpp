@@ -4,6 +4,7 @@
 // Window implementation
 Window::Window(const char* title, const int width, const int height, uint32_t flags)
 {
+  exceptionStack.push_back(Exception("Creating new program window", "Window::Window", -1, INFO));
   if (width <= 0 || height <= 0) {
     exceptionStack.push_back(Exception("Provided width or height is too small", "Window::Window", -1, FATAL));
     return;
@@ -19,16 +20,19 @@ Window::Window(const char* title, const int width, const int height, uint32_t fl
     exceptionStack.push_back(Exception("Failed to create renderer", "Winow::Window", 1, FATAL));
     return;
   }
+  exceptionStack.push_back(Exception("Created new program window", "Window::Window", -1, INFO));
 }
 
 Window::~Window()
 {
+  exceptionStack.push_back(Exception("Destroying program window", "Window::~Window", -1, INFO));
   SDL_DestroyRenderer(renderer);
   if (renderer)
     exceptionStack.push_back(Exception("Failed to destroy old renderer. This may cause memory leaks", "Window::~Window", -1, WARNING));
   SDL_DestroyWindow(window);
   if (window)
     exceptionStack.push_back(Exception("Failed to destroy window. This may cause memory leaks", "Window::~Window", -1, WARNING));
+  exceptionStack.push_back(Exception("Finished destroying program window", "Window::~Window", -1, INFO));
 }
 
 SDL_Renderer* Window::getRenderer(SDL_Renderer* returnval)
@@ -57,28 +61,41 @@ const bool Window::isRunning(SDL_Event* event, bool* returnval)
 
 void Window::replaceRenderer(SDL_Renderer* newRenderer)
 {
+  exceptionStack.push_back(Exception("Replacing program window renderer", "Window::replaceRenderer", -1, INFO));
   if (!newRenderer) {
     exceptionStack.push_back(Exception("New Renderer did not properly initialize", "Window::replaceRenderer", -1, ERROR));
     return;
   }
+
+  // Save old renderer
+  exceptionStack.push_back(Exception("Saving old renderer to temporary location...", "Window::replaceRendereer", -1, INFO));
   SDL_Renderer* temp = renderer;
   if (temp != renderer || !temp)
     exceptionStack.push_back(Exception("Failed to save old renderer to a temporary location. If replacement fails, the renderer cannot be restored", "Window::replaceRenderer", -1, WARNING));
+  else exceptionStack.push_back(Exception("Done!", "Window::replaceRenderer", -1, INFO));
+
+  // Replace renderer
+  exceptionStack.push_back(Exception("Replacing renderer...", "Window::replaceRenderer", -1, INFO));
   renderer = newRenderer;
   if (renderer != newRenderer || !renderer)
   {
-    exceptionStack.push_back(Exception("Failed to overwrite old renderer with new one.", "Window::replaceRenderer", -1, ERROR));
+    exceptionStack.push_back(Exception("Failed to overwrite old renderer with new one", "Window::replaceRenderer", -1, ERROR));
+    exceptionStack.push_back(Exception("Restoring old renderer...", "Winddow::replaceRenderer", -1, INFO));
     renderer = temp;
     if (renderer != temp || !renderer) {
-      exceptionStack.push_back(Exception("Failed to return renderer to previous state", "replaceRenderer", -1, ERROR));
+      exceptionStack.push_back(Exception("Failed to restore renderer to previous state", "replaceRenderer", -1, ERROR));
       return;
     }
-    exceptionStack.push_back(Exception("Returned renderer to previous state", "Window::replaceRenderer", -1, INFO));
+    exceptionStack.push_back(Exception("Restored renderer to previous state", "Window::replaceRenderer", -1, INFO));
     return;
   }
+
+  //Destroy old renderer
+  exceptionStack.push_back(Exception("Destroying old renderer...", "Window::replaceRenderer", -1, INFO));
   SDL_DestroyRenderer(temp);
   if (temp)
     exceptionStack.push_back(Exception("Failed to destroy old renderer. This may cause memory leaks", "replaceRenderer", -1, WARNING));
+  else exceptionStack.push_back(Exception("Done!", "Window::replaceRenderer", -1, INFO));
 }
 
 void Window::replaceWindow(SDL_Window* newWindow)
@@ -169,32 +186,6 @@ void Window::flushErrorStack() { exceptionStack.clear(); }
 // Keyboard Event Handler implementation
 
 // Mouse Interactable implementation
-
-MouseInteractable::MouseInteractable(
-  SDL_Rect* collisionbox, const function<void(vector<void*>&)> leftclick,
-  const function<void(vector<void*>&)> rightclick,
-  const function<void(vector<void*>&)> middleclick,
-  const function<void(vector<void*>&)> lefthold,
-  const function<void(vector<void*>&)> righthold,
-  const function<void(vector<void*>&)> middlehold) {
-  lhFunc = lefthold;
-  rhFunc = righthold;
-  mhFunc = middlehold;
-  lcFunc = leftclick;
-  rcFunc = rightclick;
-  mcFunc = middleclick;
-  if (!collisionbox) {
-    exceptionStack.push_back(Exception("Failed to initialize collision box",
-      "MouseInteractable::MouseInteractable",
-      -1, ERROR));
-    return;
-  }
-  collision = collisionbox;
-  if (collision != collisionbox)
-    exceptionStack.push_back(Exception("Failed to save collision box",
-      "MouseInteractable::MouseInteractable",
-      -1, ERROR));
-}
 
 SDL_Rect* MouseInteractable::getCollisionBox(SDL_Rect* returnval) {
   if (returnval != nullptr)
