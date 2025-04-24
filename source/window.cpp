@@ -100,13 +100,18 @@ void Window::replaceRenderer(SDL_Renderer* newRenderer)
 
 void Window::replaceWindow(SDL_Window* newWindow)
 {
+  exceptionStack.push_back(Exception("Replace program window window", "Window::replaceWindow", -1, INFO));
   if (!newWindow) {
     exceptionStack.push_back(Exception("New window did not properly initialize", "Window::replaceWindow", -1, ERROR));
     return;
   }
+
+  // Save old window
+  exceptionStack.push_back(Exception("Saving old window to temporary location...", "Window::replaceWindow", -1, INFO));
   SDL_Window* temp = window;
   if (temp != window || !temp)
     exceptionStack.push_back(Exception("Failed to save old window to a temporary location. If replacement fails, the old window will not be restored", "Window::replaceWindow", -1, WARNING));
+  else exceptionStack.push_back(Exception("Done!", "Window::replaceWindow", -1, INFO));
   window = newWindow;
   if (window != newWindow || !window)
   {

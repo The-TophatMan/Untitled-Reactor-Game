@@ -2,22 +2,24 @@
 #include <string>
 #include <vector>
 
-void help(const string &, vector<void *>)
+void help(const string&, vector<void*>)
 {
   cout << "Usage: ./SABWR [OPTION...]" << endl
-       << endl
-       << "-l,--logging LEVEL    What to log. Defaults to NONE. Include _AND_ between types to specify multiple logging types. Accepts: INFO, WARNING, ERROR, FATAL, ALL, NONE" << endl
-       << "-F,--file    FILE     Where to log to. Defaults to the console." << endl;
+    << endl
+    << "-l,--logging LEVEL    What to log. Defaults to NONE. Include _AND_ between types to specify multiple logging types. Accepts: INFO, WARNING, ERROR, FATAL, ALL, NONE" << endl
+    << "-F,--file    FILE     Where to log to. Defaults to the console." << endl;
 }
 
-void logTest(const string &, vector<void *> pass)
+void logTest(const string&, vector<void*> pass)
 {
-  Logging *logger = static_cast<Logging *>(pass[0]);
-  logger->log("This was a triumph");
-  logger->log("I'm making a note here \"Huge success\"");
-  logger->log("It's hard to overstate my satisfaction");
-  logger->log("Aperture Science", WARNING);
-  logger->log("We do what we must because we can");
+  Logging* logger = static_cast<Logging*>(pass[0]);
+  vector<Exception> exceptionStack;
+  exceptionStack.push_back(Exception("This was a triumph", "logTest", -1, INFO));
+  exceptionStack.push_back(Exception("I'm making a note here, \"Huge success\"", "logTest", -1, INFO));
+  exceptionStack.push_back(Exception("It's hard to overstate my satisfaction", "logTest", -1, INFO));
+  exceptionStack.push_back(Exception("Aperture Science", "logTest", -1, WARNING));
+  exceptionStack.push_back(Exception("We do what we must because we can", "logTest", -1, INFO));
+  exceptionStack.push_back(Exception("For the good of all of us, except the ones who are dead", "logTest", -1, ERROR));
   logger->log("For the good of all of us, except the ones who are dead", FATAL);
   logger->log("But there's no sense crying over every mistake", ERROR);
   logger->log("You just keep on trying 'til you run out of cake", WARNING);
@@ -54,15 +56,15 @@ void logTest(const string &, vector<void *> pass)
   throw Exception("THANK YOU FOR PARTICIPATING IN THIS ENRICHMENT CENTER ACTIVITY!!", "Aperture Science Enrichment Center", 12112007, FATAL);
 }
 
-void setFile(const string &output, vector<void *> pass)
+void setFile(const string& output, vector<void*> pass)
 {
   static ofstream out; // Ensure the ofstream persists
   out.open(output.c_str(), ios::binary);
-  Logging *logger = static_cast<Logging *>(pass[0]);
+  Logging* logger = static_cast<Logging*>(pass[0]);
   logger->setOutput(&out);
 }
 
-void addLevel(Logging *logger, string type)
+void addLevel(Logging* logger, string type)
 {
   if (type == "INFO")
     logger->addLoggingType(INFO);
@@ -74,9 +76,9 @@ void addLevel(Logging *logger, string type)
     logger->addLoggingType(FATAL);
 }
 
-void logLevel(const string &level, vector<void *> pass)
+void logLevel(const string& level, vector<void*> pass)
 {
-  Logging *logger = static_cast<Logging *>(pass[0]);
+  Logging* logger = static_cast<Logging*>(pass[0]);
   if (level == "NONE")
     return;
   if (level == "ALL")
