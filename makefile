@@ -28,4 +28,4 @@ ${EXECUTABLE}: ${OBJECTS} ${DLLOBJECTS}
 	${COMPILER} ${CFLAGS} -c $<
 
 clean:
-	rm -f ${EXECUTABLE} ./*.o ./lib/*.so
+	rm -f ${EXECUTABLE} ./*.o ./lib/*.so ./*.log
