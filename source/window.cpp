@@ -223,6 +223,252 @@ vector<Exception> Window::errorStack(vector<Exception> *stack)
 void Window::flushErrorStack() { exceptionStack.clear(); }
 
 // Keybind implementation
+Keybind::Keybind(vector<SDL_KeyCode> binding,
+                 function<void(vector<void *> &)> heldEvent,
+                 function<void(vector<void *> &)> releasedEvent,
+                 vector<void *> heldElements, vector<void *> releasedElements)
+{
+  exceptionStack.push_back(
+      Exception("Creating new keybind class with multi-key",
+                "Keybind::Keybind.0", -1, INFO));
+  keybind = binding;
+  exceptionStack.push_back(
+      Exception("Set keybinding", "Keybind::Keybind.0", -1, INFO));
+  held = heldEvent;
+  exceptionStack.push_back(
+      Exception("Set hold event", "Keybind::Keybind.0", -1, INFO));
+  released = releasedEvent;
+  exceptionStack.push_back(
+      Exception("Set released event", "Keybind::Keybind.0", -1, INFO));
+  heldInputs = heldElements;
+  exceptionStack.push_back(Exception("Set hold event pass through elements",
+                                     "Keybind::Keybind.0", -1, INFO));
+  releasedInputs = releasedElements;
+  exceptionStack.push_back(Exception("Set released event pass through elements",
+                                     "Keybind::Keybind.0", -1, INFO));
+  exceptionStack.push_back(Exception("Finished creating keybind with multi-key",
+                                     "Keybind::Keybind.0", -1, INFO));
+}
+
+Keybind::Keybind(SDL_KeyCode key, function<void(vector<void *> &)> heldEvent,
+                 vector<void *> heldElements,
+                 function<void(vector<void *> &)> releasedEvent,
+                 vector<void *> releasedElements)
+{
+  exceptionStack.push_back(
+      Exception("Creating new keybind class with single key",
+                "Keybind::Keybind.0", -1, INFO));
+  keybind.push_back(key);
+  exceptionStack.push_back(
+      Exception("Set key", "Keybind::Keybind.0", -1, INFO));
+  held = heldEvent;
+  exceptionStack.push_back(
+      Exception("Set hold event", "Keybind::Keybind.0", -1, INFO));
+  released = releasedEvent;
+  exceptionStack.push_back(
+      Exception("Set released event", "Keybind::Keybind.0", -1, INFO));
+  heldInputs = heldElements;
+  exceptionStack.push_back(Exception("Set hold event pass through elements",
+                                     "Keybind::Keybind.0", -1, INFO));
+  releasedInputs = releasedElements;
+  exceptionStack.push_back(Exception("Set released event pass through elements",
+                                     "Keybind::Keybind.0", -1, INFO));
+  exceptionStack.push_back(
+      Exception("Finished creating keybind with single key",
+                "Keybind::Keybind.0", -1, INFO));
+}
+
+const std::function<void(vector<void *> &)> Keybind::getHoldEvent(function<void(vector<void *> &)> *returnval)
+{
+  if (returnval != nullptr)
+    returnval = &held;
+  return held;
+}
+
+const std::function<void(vector<void *> &)> Keybind::getReleasedEvent(function<void(vector<void *> &)> *returnval)
+{
+  if (returnval != nullptr)
+    returnval = &released;
+  return released;
+}
+
+const std::vector<void *> Keybind::getHeldElements(vector<void *> *returnval)
+{
+  if (returnval != nullptr)
+    returnval = &heldInputs;
+  return heldInputs;
+}
+
+const std::vector<void *> Keybind::getReleasedElements(vector<void *> *returnval)
+{
+  if (returnval != nullptr)
+    returnval = &releasedInputs;
+  return releasedInputs;
+}
+
+const bool Keybind::isActive(bool *returnval)
+{
+  if (returnval != nullptr)
+    returnval = &active;
+  return active;
+}
+
+const std::vector<SDL_KeyCode> Keybind::getKeybind(vector<SDL_KeyCode> *returnval)
+{
+  if (returnval != nullptr)
+    returnval = &keybind;
+  return keybind;
+}
+
+void Keybind::replaceHoldEvent(function<void(vector<void *> &)> newEvent,
+                               vector<void *> holdElements)
+{
+  exceptionStack.push_back(
+      Exception("Replacing hold event", "Keybind::replaceHoldEvent", -1, INFO));
+  // Save old event
+  exceptionStack.push_back(
+      Exception("Saving old event to temporary location...",
+                "Keybind::replaceHoldEvent", -1, INFO));
+  const function<void(vector<void *> &)> temp = held;
+  if (&temp != &held)
+    exceptionStack.push_back(
+        Exception("Failed to save old event to temporary location. If "
+                  "replacement fails, the old function won't be restored",
+                  "Keybind::replaceHoldEvent", -1, WARNING));
+  else
+    exceptionStack.push_back(
+        Exception("Done!", "Keybind::replaceHoldEvent", -1, INFO));
+
+  // Save old elements
+  exceptionStack.push_back(
+      Exception("Saving old elements to temporary location...",
+                "Keybind::replaceHoldEvent", -1, INFO));
+  vector<void *> temp2 = heldInputs;
+  if (temp2 != heldInputs)
+    exceptionStack.push_back(
+        Exception("Failed to save old elements. If replacement fails, the old "
+                  "elements won't be restored",
+                  "Keybind::replaceHoldEvent", -1, ERROR));
+  else
+    exceptionStack.push_back(
+        Exception("Done!", "Keybind::replaceHoldEvent", -1, INFO));
+
+  // Replace event
+  exceptionStack.push_back(Exception("Attempting to replace event...",
+                                     "Keybind::replaceHoldEvent", -1, INFO));
+  held = newEvent;
+  if (&held != &newEvent)
+  {
+    exceptionStack.push_back(Exception("Failed to replace event",
+                                       "Keybind::replaceHoldEvent", -1, ERROR));
+    exceptionStack.push_back(Exception("Attempting to revert to old event...",
+                                       "Keybind::replaceHoldEvent", -1, INFO));
+    held = temp;
+    if (&held != &temp)
+      exceptionStack.push_back(Exception("Failed to revert to old event",
+                                         "Keybind::replaceHoldEvent", -1,
+                                         ERROR));
+    else
+      exceptionStack.push_back(Exception(
+          "Reverted to old event", "Keybind::replaceHoldEvent", -1, INFO));
+  }
+  else
+    exceptionStack.push_back(Exception("Successfully replaced hold event",
+                                       "Keybind::replaceHoldEvent", -1, INFO));
+}
+
+void Keybind::replaceReleasedEvent(function<void(vector<void *> &)> newEvent,
+                                   vector<void *> releasedElements)
+{
+  exceptionStack.push_back(Exception(
+      "Replacing released event", "Keybind::replaceReleasedEvent", -1, INFO));
+  // Save old event
+  exceptionStack.push_back(
+      Exception("Saving old event to temporary location...",
+                "Keybind::replaceReleasedEvent", -1, INFO));
+  const function<void(vector<void *> &)> temp = released;
+  if (&temp != &released)
+    exceptionStack.push_back(
+        Exception("Failed to save old event to temporary location. If "
+                  "replacement fails, the old function won't be restored",
+                  "Keybind::replaceReleasedEvent", -1, WARNING));
+  else
+    exceptionStack.push_back(
+        Exception("Done!", "Keybind::replaceReleasedEvent", -1, INFO));
+
+  // Save old elements
+  exceptionStack.push_back(
+      Exception("Saving old elements to temporary location...",
+                "Keybind::replaceReleasedEvent", -1, INFO));
+  vector<void *> temp2 = releasedInputs;
+  if (temp2 != releasedInputs)
+    exceptionStack.push_back(
+        Exception("Failed to save old elements. If replacement fails, the old "
+                  "elements won't be restored",
+                  "Keybind::replaceReleasedEvent", -1, ERROR));
+  else
+    exceptionStack.push_back(
+        Exception("Done!", "Keybind::replaceReleasedEvent", -1, INFO));
+
+  // Replace event
+  exceptionStack.push_back(Exception("Attempting to replace event...",
+                                     "Keybind::replaceReleasedEvent", -1,
+                                     INFO));
+  released = newEvent;
+  if (&released != &newEvent)
+  {
+    exceptionStack.push_back(Exception(
+        "Failed to replace event", "Keybind::replaceReleasedEvent", -1, ERROR));
+    exceptionStack.push_back(Exception("Attempting to revert to old event...",
+                                       "Keybind::replaceReleasedEvent", -1,
+                                       INFO));
+    released = temp;
+    if (&released != &temp)
+      exceptionStack.push_back(Exception("Failed to revert to old event",
+                                         "Keybind::replaceReleasedEvent", -1,
+                                         ERROR));
+    else
+      exceptionStack.push_back(Exception(
+          "Reverted to old event", "Keybind::replaceReleasedEvent", -1, INFO));
+  }
+  else
+    exceptionStack.push_back(Exception("Successfully replaced released event",
+                                       "Keybind::replaceReleasedEvent", -1,
+                                       INFO));
+}
+
+void Keybind::toggleActive() { active = !active; }
+
+void Keybind::setActive(const bool set) { active = set; }
+
+void Keybind::deactivate() { active = false; }
+
+void Keybind::activate() { active = true; }
+
+void Keybind::removeHoldEvent()
+{
+  exceptionStack.push_back(
+      Exception("Removing hold event", "Keybind::removeHoldEvent", -1, INFO));
+  held = nullptr;
+  heldInputs.clear();
+}
+
+void Keybind::removeReleasedEvent()
+{
+  exceptionStack.push_back(Exception("Removing released event",
+                                     "Keybind::removeReleasedEvent", -1, INFO));
+  released = nullptr;
+  releasedInputs.clear();
+}
+
+std::vector<Exception> Keybind::errorStack(vector<Exception> *retrunval)
+{
+  if (retrunval != nullptr)
+    retrunval = &exceptionStack;
+  return exceptionStack;
+}
+
+void Keybind::flushErrorStack() { exceptionStack.clear(); }
 
 // Keyboard Event Handler implementation
 
