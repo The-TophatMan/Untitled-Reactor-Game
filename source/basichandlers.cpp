@@ -126,7 +126,7 @@ void exceptionTest(const string &, vector<void *> logging)
   exceptionStack.push_back(Exception("I'll let you get right to it", "Aperture Science Enrichment Center", 4192011, INFO));
   exceptionStack.push_back(Exception("Now I only want you gone", "Aperture Science Enrichment Center", 4192011, INFO));
   exceptionStack.push_back(Exception("Goodbye my only friend", "Aperture Science Enrichment Center", 4192011, INFO));
-  exceptionStack.push_back(Exception("Oh, did you think I meant yo?", "Aperture Science Enrichment Center", 4192011, INFO));
+  exceptionStack.push_back(Exception("Oh, did you think I meant you?", "Aperture Science Enrichment Center", 4192011, INFO));
   exceptionStack.push_back(Exception("That would be funny", "Aperture Science Enrichment Center", 4192011, INFO));
   exceptionStack.push_back(Exception("if it weren't so sad", "Aperture Science Enrichment Center", 4192011, INFO));
   exceptionStack.push_back(Exception("Well you have been replaced", "Aperture Science Enrichment Center", 4192011, INFO));
