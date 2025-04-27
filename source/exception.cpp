@@ -17,6 +17,7 @@
 #include <fstream>
 using namespace std;
 
+// Exception implementation
 Exception::Exception(string message, string path, int code, LogType severity)
 {
   this->message = message;
@@ -27,28 +28,28 @@ Exception::Exception(string message, string path, int code, LogType severity)
 
 Exception::~Exception() {}
 
-const string Exception::Message(string *returnval)
+string Exception::Message(string *returnval)
 {
   if (returnval != nullptr)
     returnval = &message;
   return message;
 }
 
-const int Exception::Code(int *returnval)
+int Exception::Code(int *returnval)
 {
   if (returnval != nullptr)
     returnval = &code;
   return code;
 }
 
-const string Exception::Path(string *returnval)
+string Exception::Path(string *returnval)
 {
   if (returnval != nullptr)
     returnval = &path;
   return path;
 }
 
-const LogType Exception::Severity(LogType *returnval)
+LogType Exception::Severity(LogType *returnval)
 {
   if (returnval != nullptr)
     returnval = &severity;
@@ -64,6 +65,36 @@ Exception Exception::operator<<(string addToPath)
   return *this;
 }
 
+// Exception Stack implementation
+void ExceptionStack::addPath(string pathtoadd)
+{
+  for (int i = 0; i < stack.size(); i++)
+    stack[i] << pathtoadd;
+}
+
+int ExceptionStack::size(int *returnval)
+{
+  if (returnval != nullptr)
+    *returnval = stack.size();
+  return stack.size();
+}
+
+Exception ExceptionStack::exception(const int pos, Exception *returnval)
+{
+  if (pos < 0 || pos >= stack.size())
+    return Exception(
+        "Attempted to access exception outside of exception stack range",
+        "ExceptionStack::exception", -1, ERROR);
+  if (returnval != nullptr)
+    *returnval = stack[pos];
+  return stack[pos];
+}
+
+void ExceptionStack::insert(Exception e) { stack.push_back(e); }
+
+void ExceptionStack::flushStack() { stack.clear(); }
+
+// Logging implementation
 Logging::Logging(ostream &stream, initializer_list<LogType> level)
 {
   copy(level.begin(), level.end(), loggingLevel);
@@ -103,7 +134,7 @@ void Logging::log(string message, LogType severity)
   output->flush();
 }
 
-void Logging::log(Exception &e)
+void Logging::log(Exception e)
 {
   if (e.Severity() == INFO)
     log(e.Path() + " > " + e.Message(), INFO);
@@ -113,13 +144,14 @@ void Logging::log(Exception &e)
     exit(e.Code());
 }
 
-void Logging::log(vector<Exception> exceptionStack)
+void Logging::log(ExceptionStack exceptionStack)
 {
   for (int i = 0; i < exceptionStack.size(); i++)
   {
-    log(exceptionStack[i]);
-    if (exceptionStack[i].Severity() == FATAL)
-      exit(exceptionStack[i].Code());
+    Exception e = exceptionStack.exception(i);
+    log(e);
+    if (e.Severity() == FATAL)
+      exit(e.Code());
   }
 }
 
@@ -174,10 +206,4 @@ Logging::~Logging()
   {
     cout << err.what();
   }
-}
-
-void addPath(vector<Exception> *stack, string pathtoadd)
-{
-  for (int i = 0; i < stack->size(); i++)
-    (*stack)[i] << pathtoadd;
 }

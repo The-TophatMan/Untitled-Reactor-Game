@@ -2,6 +2,7 @@
 #define WINDOW_H
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_keycode.h>
 #include <map>
 #include <vector>
 #include <functional>
@@ -13,7 +14,7 @@ private:
   SDL_Window *window;
   SDL_Renderer *renderer;
   bool execute = true;
-  vector<Exception> exceptionStack;
+  ExceptionStack stack;
 
 public:
   Window(const char *title = "", const int width = 1280, const int height = 720, uint32_t flags = SDL_WINDOW_SHOWN);
@@ -24,7 +25,7 @@ public:
   Window &operator=(Window &&) = delete;
   SDL_Renderer *getRenderer(SDL_Renderer *returnval = nullptr);
   SDL_Window *getWindow(SDL_Window *returnval = nullptr);
-  const bool isRunning(SDL_Event *event, bool *returnval = nullptr);
+  bool isRunning(SDL_Event *event, bool *returnval = nullptr);
   void replaceRenderer(SDL_Renderer *newRenderer);
   void replaceWindow(SDL_Window *newWindow);
   void swapExecution();
@@ -33,14 +34,25 @@ public:
   void changeTitle(const char *newTitle);
   void changeResolution(const int width = 0, const int height = 0);
   void updateFlags(uint32_t flags);
-  vector<Exception> errorStack(vector<Exception> *stack = nullptr);
-  void flushErrorStack();
+
+  ExceptionStack *errorStack(ExceptionStack *returnval = nullptr);
+};
+
+enum KeyModifier
+{
+  LEFT_CONTROL,
+  RIGHT_CONTROL,
+  LEFT_ALT,
+  RIGHT_ALT,
+  LEFT_SHIFT,
+  RIGHT_SHIFT,
+  none
 };
 
 class Keybind
 {
 private:
-  vector<SDL_KeyCode> keybind;
+  SDL_KeyCode keybind;
   function<void(vector<void *> &)>
       held,      // What to do when the keybind is pushed down
       released;  // What to do when the keybind is released
@@ -48,34 +60,34 @@ private:
       heldInputs,
       releasedInputs;
   bool active;
-  vector<Exception> exceptionStack;
+  KeyModifier mod;
+  ExceptionStack stack;
 
 public:
   Keybind(const Keybind &) = default;
   Keybind(Keybind &&) = default;
   Keybind &operator=(const Keybind &) = default;
   Keybind &operator=(Keybind &&) = default;
-  Keybind(vector<SDL_KeyCode> binding,
+  Keybind(const SDL_KeyCode key,
+          KeyModifier modifier = none,
           function<void(vector<void *> &)> heldEvent = nullptr,
-          function<void(vector<void *> &)> releasedEvent = nullptr,
-          vector<void *> heldElements = {},
-          vector<void *> releasedElements = {});
-  Keybind(SDL_KeyCode key, function<void(vector<void *> &)> heldEvent = nullptr,
           vector<void *> heldElements = {},
           function<void(vector<void *> &)> releasedEvent = nullptr,
           vector<void *> releasedElements = {});
 
-  const function<void(vector<void *> &)> getHoldEvent(function<void(vector<void *> &)> *returnval = nullptr);
-  const function<void(vector<void *> &)> getReleasedEvent(function<void(vector<void *> &)> *returnval = nullptr);
-  const vector<void *> getHeldElements(vector<void *> *returnval = nullptr);
-  const vector<void *> getReleasedElements(vector<void *> *returnval = nullptr);
-  const bool isActive(bool *returnval = nullptr);
-  const vector<SDL_KeyCode> getKeybind(vector<SDL_KeyCode> *returnval = nullptr);
+  function<void(vector<void *> &)> getHoldEvent(function<void(vector<void *> &)> *returnval = nullptr);
+  function<void(vector<void *> &)> getReleasedEvent(function<void(vector<void *> &)> *returnval = nullptr);
+  vector<void *> getHeldElements(vector<void *> *returnval = nullptr);
+  vector<void *> getReleasedElements(vector<void *> *returnval = nullptr);
+  bool isActive(bool *returnval = nullptr);
+  SDL_KeyCode getKeybind(SDL_KeyCode *returnval = nullptr);
+  KeyModifier getModifier(KeyModifier *returnval = nullptr);
 
   void replaceHoldEvent(function<void(vector<void *> &)> newEvent,
                         vector<void *> holdElements);
   void replaceReleasedEvent(function<void(vector<void *> &)> newEvent,
                             vector<void *> releasedElements);
+  void replaceKeyModifier(const KeyModifier newModifier);
   void toggleActive();
   void setActive(const bool set);
   void deactivate();
@@ -83,14 +95,31 @@ public:
 
   void removeHoldEvent();
   void removeReleasedEvent();
+  void removeKeyModifier();
 
-  vector<Exception> errorStack(vector<Exception> *retrunval = nullptr);
-  void flushErrorStack();
+  ExceptionStack *errorStack(ExceptionStack *retrunval = nullptr);
 };
 
 class KeyboardEventHandler
 {
 private:
+  map<pair<SDL_KeyCode, KeyModifier>, Keybind *> keybinds;
+  ExceptionStack stack;
+
+public:
+  KeyboardEventHandler(const KeyboardEventHandler &) = default;
+  KeyboardEventHandler(KeyboardEventHandler &&) = default;
+  KeyboardEventHandler &operator=(const KeyboardEventHandler &) = default;
+  KeyboardEventHandler &operator=(KeyboardEventHandler &&) = default;
+  KeyboardEventHandler(map<pair<SDL_KeyCode, KeyModifier>, Keybind *> import = {});
+
+  void addKeybind(Keybind *keybind);
+  Keybind *getKeybind(SDL_KeyCode key, KeyModifier modifier = none, Keybind *returnval = nullptr);
+  Keybind *getKeybind(Keybind *bind, Keybind *returnval = nullptr);
+  void removeKeybind(SDL_KeyCode key, KeyModifier modifier = none);
+  void removeKeybind(Keybind *bind);
+
+  ExceptionStack *errorStack(ExceptionStack *retrunval = nullptr);
 };
 
 class MouseInteractable
@@ -111,7 +140,7 @@ private:
       rcPass,
       mcPass;
   SDL_Rect *collision;
-  vector<Exception> exceptionStack;
+  ExceptionStack stack;
 
 public:
   MouseInteractable(const MouseInteractable &) = default;
@@ -120,12 +149,12 @@ public:
   MouseInteractable &operator=(MouseInteractable &&) = default;
   MouseInteractable(
       SDL_Rect *collisionbox,
-      const function<void(vector<void *> &)> leftclick = nullptr, const vector<void *> leftclickElements = {},
-      const function<void(vector<void *> &)> rightclick = nullptr, const vector<void *> rightclickElements = {},
-      const function<void(vector<void *> &)> middleclick = nullptr, const vector<void *> middleclickElements = {},
-      const function<void(vector<void *> &)> lefthold = nullptr, const vector<void *> leftholdElements = {},
-      const function<void(vector<void *> &)> righthold = nullptr, const vector<void *> rightholdElements = {},
-      const function<void(vector<void *> &)> middlehold = nullptr, const vector<void *> middleholdElements = {})
+      function<void(vector<void *> &)> leftclick = nullptr, const vector<void *> leftclickElements = {},
+      function<void(vector<void *> &)> rightclick = nullptr, const vector<void *> rightclickElements = {},
+      function<void(vector<void *> &)> middleclick = nullptr, const vector<void *> middleclickElements = {},
+      function<void(vector<void *> &)> lefthold = nullptr, const vector<void *> leftholdElements = {},
+      function<void(vector<void *> &)> righthold = nullptr, const vector<void *> rightholdElements = {},
+      function<void(vector<void *> &)> middlehold = nullptr, const vector<void *> middleholdElements = {})
   {
     lhFunc = lefthold;
     rhFunc = righthold;
@@ -141,16 +170,16 @@ public:
     mcPass = middleclickElements;
     if (!collisionbox)
     {
-      exceptionStack.push_back(Exception("Failed to initialize collision box",
-                                         "MouseInteractable::MouseInteractable",
-                                         -1, ERROR));
+      stack.insert(Exception("Failed to initialize collision box",
+                             "MouseInteractable::MouseInteractable",
+                             -1, ERROR));
       return;
     }
     collision = collisionbox;
     if (collision != collisionbox)
-      exceptionStack.push_back(Exception("Failed to save collision box",
-                                         "MouseInteractable::MouseInteractable",
-                                         -1, ERROR));
+      stack.insert(Exception("Failed to save collision box",
+                             "MouseInteractable::MouseInteractable",
+                             -1, ERROR));
   }
 
   SDL_Rect *getCollisionBox(SDL_Rect *returnval = nullptr);
@@ -161,8 +190,7 @@ public:
   function<void(vector<void *> &)> getRightHoldFunction(function<void(vector<void *> &)> returnval = nullptr);
   function<void(vector<void *> &)> getMiddleHoldFunction(function<void(vector<void *> &)> returnval = nullptr);
 
-  vector<Exception> errorStack(vector<Exception> *errorStack = nullptr);
-  void flushErrorStack();
+  ExceptionStack *errorStack(ExceptionStack *errorStack = nullptr);
 };
 
 class StaticMouseInteractables

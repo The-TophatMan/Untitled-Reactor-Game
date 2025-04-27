@@ -20,10 +20,9 @@ int main(int argc, char **argv)
   cla.addArgument("-P", exceptionTest, vector<void *>{&logger});
   cla.cycleArguments(argc, argv);
   Window game("Untitled Reactor Game");
-  vector<Exception> gameStack = game.errorStack();
-  game.flushErrorStack();
-  addPath(&gameStack, "game");
-  logger.log(gameStack);
+  game.errorStack()->addPath("game");
+  logger.log(*game.errorStack());
+  game.errorStack()->flushStack();
   KeyboardEventHandler keyHandler;
   SDL_Event event;
   while (game.isRunning(&event))

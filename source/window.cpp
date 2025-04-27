@@ -4,38 +4,38 @@
 // Window implementation
 Window::Window(const char *title, const int width, const int height, uint32_t flags)
 {
-  exceptionStack.push_back(Exception("Creating new program window", "Window::Window", -1, INFO));
+  stack.insert(Exception("Creating new program window", "Window::Window", -1, INFO));
   if (width <= 0 || height <= 0)
   {
-    exceptionStack.push_back(Exception("Provided width or height is too small", "Window::Window", -1, FATAL));
+    stack.insert(Exception("Provided width or height is too small", "Window::Window", -1, FATAL));
     return;
   }
   window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
   if (!window)
   {
-    exceptionStack.push_back(Exception("Failed to create window", "Window::Window", 1, FATAL));
+    stack.insert(Exception("Failed to create window", "Window::Window", 1, FATAL));
     return;
   }
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
   if (!renderer)
   {
     SDL_DestroyWindow(window);
-    exceptionStack.push_back(Exception("Failed to create renderer", "Winow::Window", 1, FATAL));
+    stack.insert(Exception("Failed to create renderer", "Winow::Window", 1, FATAL));
     return;
   }
-  exceptionStack.push_back(Exception("Created new program window", "Window::Window", -1, INFO));
+  stack.insert(Exception("Created new program window", "Window::Window", -1, INFO));
 }
 
 Window::~Window()
 {
-  exceptionStack.push_back(Exception("Destroying program window", "Window::~Window", -1, INFO));
+  stack.insert(Exception("Destroying program window", "Window::~Window", -1, INFO));
   SDL_DestroyRenderer(renderer);
   if (renderer)
-    exceptionStack.push_back(Exception("Failed to destroy old renderer. This may cause memory leaks", "Window::~Window", -1, WARNING));
+    stack.insert(Exception("Failed to destroy old renderer. This may cause memory leaks", "Window::~Window", -1, WARNING));
   SDL_DestroyWindow(window);
   if (window)
-    exceptionStack.push_back(Exception("Failed to destroy window. This may cause memory leaks", "Window::~Window", -1, WARNING));
-  exceptionStack.push_back(Exception("Finished destroying program window", "Window::~Window", -1, INFO));
+    stack.insert(Exception("Failed to destroy window. This may cause memory leaks", "Window::~Window", -1, WARNING));
+  stack.insert(Exception("Finished destroying program window", "Window::~Window", -1, INFO));
 }
 
 SDL_Renderer *Window::getRenderer(SDL_Renderer *returnval)
@@ -52,7 +52,7 @@ SDL_Window *Window::getWindow(SDL_Window *returnval)
   return window;
 }
 
-const bool Window::isRunning(SDL_Event *event, bool *returnval)
+bool Window::isRunning(SDL_Event *event, bool *returnval)
 {
   while (SDL_PollEvent(event))
     if (event->type == SDL_QUIT)
@@ -64,79 +64,79 @@ const bool Window::isRunning(SDL_Event *event, bool *returnval)
 
 void Window::replaceRenderer(SDL_Renderer *newRenderer)
 {
-  exceptionStack.push_back(Exception("Replacing program window renderer", "Window::replaceRenderer", -1, INFO));
+  stack.insert(Exception("Replacing program window renderer", "Window::replaceRenderer", -1, INFO));
   if (!newRenderer)
   {
-    exceptionStack.push_back(Exception("New Renderer did not properly initialize", "Window::replaceRenderer", -1, ERROR));
+    stack.insert(Exception("New Renderer did not properly initialize", "Window::replaceRenderer", -1, ERROR));
     return;
   }
 
   // Save old renderer
-  exceptionStack.push_back(Exception("Saving old renderer to temporary location...", "Window::replaceRendereer", -1, INFO));
+  stack.insert(Exception("Saving old renderer to temporary location...", "Window::replaceRendereer", -1, INFO));
   SDL_Renderer *temp = renderer;
   if (temp != renderer || !temp)
-    exceptionStack.push_back(Exception("Failed to save old renderer to a temporary location. If replacement fails, the renderer cannot be restored", "Window::replaceRenderer", -1, WARNING));
+    stack.insert(Exception("Failed to save old renderer to a temporary location. If replacement fails, the renderer cannot be restored", "Window::replaceRenderer", -1, WARNING));
   else
-    exceptionStack.push_back(Exception("Done!", "Window::replaceRenderer", -1, INFO));
+    stack.insert(Exception("Done!", "Window::replaceRenderer", -1, INFO));
 
   // Replace renderer
-  exceptionStack.push_back(Exception("Replacing renderer...", "Window::replaceRenderer", -1, INFO));
+  stack.insert(Exception("Replacing renderer...", "Window::replaceRenderer", -1, INFO));
   renderer = newRenderer;
   if (renderer != newRenderer || !renderer)
   {
-    exceptionStack.push_back(Exception("Failed to overwrite old renderer with new one", "Window::replaceRenderer", -1, ERROR));
-    exceptionStack.push_back(Exception("Restoring old renderer...", "Winddow::replaceRenderer", -1, INFO));
+    stack.insert(Exception("Failed to overwrite old renderer with new one", "Window::replaceRenderer", -1, ERROR));
+    stack.insert(Exception("Restoring old renderer...", "Winddow::replaceRenderer", -1, INFO));
     renderer = temp;
     if (renderer != temp || !renderer)
     {
-      exceptionStack.push_back(Exception("Failed to restore renderer to previous state", "replaceRenderer", -1, ERROR));
+      stack.insert(Exception("Failed to restore renderer to previous state", "replaceRenderer", -1, ERROR));
       return;
     }
-    exceptionStack.push_back(Exception("Restored renderer to previous state", "Window::replaceRenderer", -1, INFO));
+    stack.insert(Exception("Restored renderer to previous state", "Window::replaceRenderer", -1, INFO));
     return;
   }
 
   // Destroy old renderer
-  exceptionStack.push_back(Exception("Destroying old renderer...", "Window::replaceRenderer", -1, INFO));
+  stack.insert(Exception("Destroying old renderer...", "Window::replaceRenderer", -1, INFO));
   SDL_DestroyRenderer(temp);
   if (temp)
-    exceptionStack.push_back(Exception("Failed to destroy old renderer. This may cause memory leaks", "replaceRenderer", -1, WARNING));
+    stack.insert(Exception("Failed to destroy old renderer. This may cause memory leaks", "replaceRenderer", -1, WARNING));
   else
-    exceptionStack.push_back(Exception("Done!", "Window::replaceRenderer", -1, INFO));
+    stack.insert(Exception("Done!", "Window::replaceRenderer", -1, INFO));
 }
 
 void Window::replaceWindow(SDL_Window *newWindow)
 {
-  exceptionStack.push_back(Exception("Replace program window window", "Window::replaceWindow", -1, INFO));
+  stack.insert(Exception("Replace program window window", "Window::replaceWindow", -1, INFO));
   if (!newWindow)
   {
-    exceptionStack.push_back(Exception("New window did not properly initialize", "Window::replaceWindow", -1, ERROR));
+    stack.insert(Exception("New window did not properly initialize", "Window::replaceWindow", -1, ERROR));
     return;
   }
 
   // Save old window
-  exceptionStack.push_back(Exception("Saving old window to temporary location...", "Window::replaceWindow", -1, INFO));
+  stack.insert(Exception("Saving old window to temporary location...", "Window::replaceWindow", -1, INFO));
   SDL_Window *temp = window;
   if (temp != window || !temp)
-    exceptionStack.push_back(Exception("Failed to save old window to a temporary location. If replacement fails, the old window will not be restored", "Window::replaceWindow", -1, WARNING));
+    stack.insert(Exception("Failed to save old window to a temporary location. If replacement fails, the old window will not be restored", "Window::replaceWindow", -1, WARNING));
   else
-    exceptionStack.push_back(Exception("Done!", "Window::replaceWindow", -1, INFO));
+    stack.insert(Exception("Done!", "Window::replaceWindow", -1, INFO));
   window = newWindow;
   if (window != newWindow || !window)
   {
-    exceptionStack.push_back(Exception("Failed to overwrite old window with new one", "Window::replaceWindow", -1, ERROR));
+    stack.insert(Exception("Failed to overwrite old window with new one", "Window::replaceWindow", -1, ERROR));
     window = temp;
     if (window != temp || !window)
     {
-      exceptionStack.push_back(Exception("Failed to return old window to previous state", "replaceWindow", -1, ERROR));
+      stack.insert(Exception("Failed to return old window to previous state", "replaceWindow", -1, ERROR));
       return;
     }
-    exceptionStack.push_back(Exception("Returned window to previous state", "Window::replaceWindow", -1, INFO));
+    stack.insert(Exception("Returned window to previous state", "Window::replaceWindow", -1, INFO));
     return;
   }
   SDL_DestroyWindow(temp);
   if (temp)
-    exceptionStack.push_back(Exception("Failed to destroy old window. This may cause memory leaks", "Window::replaceWindow", -1, WARNING));
+    stack.insert(Exception("Failed to destroy old window. This may cause memory leaks", "Window::replaceWindow", -1, WARNING));
 }
 
 void Window::swapExecution() { execute = !execute; }
@@ -149,14 +149,14 @@ void Window::changeTitle(const char *newTitle)
 {
   SDL_SetWindowTitle(window, newTitle);
   if (SDL_GetWindowTitle(window) != newTitle)
-    exceptionStack.push_back(Exception("Failed to change window title", "Window::changeTitle", -1, ERROR));
+    stack.insert(Exception("Failed to change window title", "Window::changeTitle", -1, ERROR));
 }
 
 void Window::changeResolution(const int width, const int height)
 {
   if (width <= 0 || height <= 0)
   {
-    exceptionStack.push_back(Exception("Provided width or height is too small", "Window::changeResolution", -1, ERROR));
+    stack.insert(Exception("Provided width or height is too small", "Window::changeResolution", -1, ERROR));
     return;
   }
   SDL_SetWindowSize(window, width, height);
@@ -164,38 +164,38 @@ void Window::changeResolution(const int width, const int height)
 
 void Window::updateFlags(uint32_t flags)
 {
-  exceptionStack.push_back(Exception("Updating window flags", "Window::updateFlags", -1, INFO));
+  stack.insert(Exception("Updating window flags", "Window::updateFlags", -1, INFO));
   if (flags & SDL_WINDOW_FULLSCREEN)
   {
     SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
-    exceptionStack.push_back(Exception("Changed fullscreen type", "Window::updateFlags", -1, INFO));
+    stack.insert(Exception("Changed fullscreen type", "Window::updateFlags", -1, INFO));
   }
   if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP)
   {
     SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    exceptionStack.push_back(Exception("Changed fullscreen desktop type", "Window::updateFlags", -1, INFO));
+    stack.insert(Exception("Changed fullscreen desktop type", "Window::updateFlags", -1, INFO));
   }
   if (flags & SDL_WINDOW_SHOWN)
   {
     SDL_ShowWindow(window);
-    exceptionStack.push_back(Exception("Set window to be visible", "Window::updateFlags", -1, INFO));
+    stack.insert(Exception("Set window to be visible", "Window::updateFlags", -1, INFO));
   }
   if (flags & SDL_WINDOW_HIDDEN)
   {
     SDL_HideWindow(window);
-    exceptionStack.push_back(Exception("Set window to be invisible", "Window::updateFlags", -1, INFO));
+    stack.insert(Exception("Set window to be invisible", "Window::updateFlags", -1, INFO));
   }
   if (flags & SDL_WINDOW_BORDERLESS)
   {
     if (SDL_GetWindowFlags(window) & SDL_WINDOW_BORDERLESS)
     {
       SDL_SetWindowBordered(window, SDL_TRUE);
-      exceptionStack.push_back(Exception("Window has been toggled to be borderless", "Window::updateFlags", -1, INFO));
+      stack.insert(Exception("Window has been toggled to be borderless", "Window::updateFlags", -1, INFO));
     }
     else
     {
       SDL_SetWindowBordered(window, SDL_FALSE);
-      exceptionStack.push_back(Exception("Window has been toggled to be bordered", "Window::updateFlags", -1, INFO));
+      stack.insert(Exception("Window has been toggled to be bordered", "Window::updateFlags", -1, INFO));
     }
   }
   if (flags & SDL_WINDOW_RESIZABLE)
@@ -203,238 +203,235 @@ void Window::updateFlags(uint32_t flags)
     if (SDL_GetWindowFlags(window) & SDL_WINDOW_RESIZABLE)
     {
       SDL_SetWindowResizable(window, SDL_FALSE);
-      exceptionStack.push_back(Exception("Window is no longer resizable", "Window::updateFlags", -1, INFO));
+      stack.insert(Exception("Window is no longer resizable", "Window::updateFlags", -1, INFO));
     }
     else
     {
       SDL_SetWindowResizable(window, SDL_TRUE);
-      exceptionStack.push_back(Exception("Window is now resizable", "Window::updateFlags", -1, INFO));
+      stack.insert(Exception("Window is now resizable", "Window::updateFlags", -1, INFO));
     }
   }
 }
 
-vector<Exception> Window::errorStack(vector<Exception> *stack)
+ExceptionStack *Window::errorStack(ExceptionStack *returnval)
 {
-  if (stack != nullptr)
-    *stack = exceptionStack;
-  return exceptionStack;
+  if (returnval != nullptr)
+    returnval = &stack;
+  return &stack;
 }
-
-void Window::flushErrorStack() { exceptionStack.clear(); }
 
 // Keybind implementation
-Keybind::Keybind(vector<SDL_KeyCode> binding,
+Keybind::Keybind(SDL_KeyCode key,
+                 KeyModifier modifier,
                  function<void(vector<void *> &)> heldEvent,
-                 function<void(vector<void *> &)> releasedEvent,
-                 vector<void *> heldElements, vector<void *> releasedElements)
-{
-  exceptionStack.push_back(
-      Exception("Creating new keybind class with multi-key",
-                "Keybind::Keybind.0", -1, INFO));
-  keybind = binding;
-  exceptionStack.push_back(
-      Exception("Set keybinding", "Keybind::Keybind.0", -1, INFO));
-  held = heldEvent;
-  exceptionStack.push_back(
-      Exception("Set hold event", "Keybind::Keybind.0", -1, INFO));
-  released = releasedEvent;
-  exceptionStack.push_back(
-      Exception("Set released event", "Keybind::Keybind.0", -1, INFO));
-  heldInputs = heldElements;
-  exceptionStack.push_back(Exception("Set hold event pass through elements",
-                                     "Keybind::Keybind.0", -1, INFO));
-  releasedInputs = releasedElements;
-  exceptionStack.push_back(Exception("Set released event pass through elements",
-                                     "Keybind::Keybind.0", -1, INFO));
-  exceptionStack.push_back(Exception("Finished creating keybind with multi-key",
-                                     "Keybind::Keybind.0", -1, INFO));
-}
-
-Keybind::Keybind(SDL_KeyCode key, function<void(vector<void *> &)> heldEvent,
                  vector<void *> heldElements,
                  function<void(vector<void *> &)> releasedEvent,
                  vector<void *> releasedElements)
 {
-  exceptionStack.push_back(
-      Exception("Creating new keybind class with single key",
-                "Keybind::Keybind.0", -1, INFO));
-  keybind.push_back(key);
-  exceptionStack.push_back(
-      Exception("Set key", "Keybind::Keybind.0", -1, INFO));
+  stack.insert(Exception("Creating new keybind", "Keybind::Keybind.0", -1, INFO));
+  keybind = key;
+  stack.insert(Exception("Set key", "Keybind::Keybind", -1, INFO));
+  mod = modifier;
+  stack.insert(Exception("Set modifier", "Keybind::Keybind", -1, INFO));
   held = heldEvent;
-  exceptionStack.push_back(
-      Exception("Set hold event", "Keybind::Keybind.0", -1, INFO));
+  stack.insert(Exception("Set hold event", "Keybind::Keybind", -1, INFO));
   released = releasedEvent;
-  exceptionStack.push_back(
-      Exception("Set released event", "Keybind::Keybind.0", -1, INFO));
+  stack.insert(Exception("Set released event", "Keybind::Keybind", -1, INFO));
   heldInputs = heldElements;
-  exceptionStack.push_back(Exception("Set hold event pass through elements",
-                                     "Keybind::Keybind.0", -1, INFO));
+  stack.insert(Exception("Set hold event pass through elements", "Keybind::Keybind", -1, INFO));
   releasedInputs = releasedElements;
-  exceptionStack.push_back(Exception("Set released event pass through elements",
-                                     "Keybind::Keybind.0", -1, INFO));
-  exceptionStack.push_back(
-      Exception("Finished creating keybind with single key",
-                "Keybind::Keybind.0", -1, INFO));
+  stack.insert(Exception("Set released event pass through elements", "Keybind::Keybind", -1, INFO));
+  stack.insert(Exception("Finished creating keybind", "Keybind::Keybind", -1, INFO));
 }
 
-const std::function<void(vector<void *> &)> Keybind::getHoldEvent(function<void(vector<void *> &)> *returnval)
+function<void(vector<void *> &)> Keybind::getHoldEvent(function<void(vector<void *> &)> *returnval)
 {
   if (returnval != nullptr)
     returnval = &held;
   return held;
 }
 
-const std::function<void(vector<void *> &)> Keybind::getReleasedEvent(function<void(vector<void *> &)> *returnval)
+function<void(vector<void *> &)> Keybind::getReleasedEvent(function<void(vector<void *> &)> *returnval)
 {
   if (returnval != nullptr)
     returnval = &released;
   return released;
 }
 
-const std::vector<void *> Keybind::getHeldElements(vector<void *> *returnval)
+vector<void *> Keybind::getHeldElements(vector<void *> *returnval)
 {
   if (returnval != nullptr)
     returnval = &heldInputs;
   return heldInputs;
 }
 
-const std::vector<void *> Keybind::getReleasedElements(vector<void *> *returnval)
+vector<void *> Keybind::getReleasedElements(vector<void *> *returnval)
 {
   if (returnval != nullptr)
     returnval = &releasedInputs;
   return releasedInputs;
 }
 
-const bool Keybind::isActive(bool *returnval)
+bool Keybind::isActive(bool *returnval)
 {
   if (returnval != nullptr)
     returnval = &active;
   return active;
 }
 
-const std::vector<SDL_KeyCode> Keybind::getKeybind(vector<SDL_KeyCode> *returnval)
+SDL_KeyCode Keybind::getKeybind(SDL_KeyCode *returnval)
 {
   if (returnval != nullptr)
     returnval = &keybind;
   return keybind;
 }
 
-void Keybind::replaceHoldEvent(function<void(vector<void *> &)> newEvent,
-                               vector<void *> holdElements)
+KeyModifier Keybind::getModifier(KeyModifier *returnval)
 {
-  exceptionStack.push_back(
-      Exception("Replacing hold event", "Keybind::replaceHoldEvent", -1, INFO));
+  if (returnval != nullptr)
+    returnval = &mod;
+  return mod;
+}
+
+void Keybind::replaceHoldEvent(function<void(vector<void *> &)> newEvent, vector<void *> holdElements)
+{
+  stack.insert(Exception("Replacing hold event", "Keybind::replaceHoldEvent", -1, INFO));
   // Save old event
-  exceptionStack.push_back(
-      Exception("Saving old event to temporary location...",
-                "Keybind::replaceHoldEvent", -1, INFO));
+  stack.insert(Exception("Saving old event to temporary location...", "Keybind::replaceHoldEvent", -1, INFO));
   const function<void(vector<void *> &)> temp = held;
   if (&temp != &held)
-    exceptionStack.push_back(
-        Exception("Failed to save old event to temporary location. If "
-                  "replacement fails, the old function won't be restored",
-                  "Keybind::replaceHoldEvent", -1, WARNING));
+    stack.insert(Exception("Failed to save old event to temporary location. If replacement fails, the old function won't be restored", "Keybind::replaceHoldEvent", -1, WARNING));
   else
-    exceptionStack.push_back(
-        Exception("Done!", "Keybind::replaceHoldEvent", -1, INFO));
+    stack.insert(Exception("Done!", "Keybind::replaceHoldEvent", -1, INFO));
 
   // Save old elements
-  exceptionStack.push_back(
-      Exception("Saving old elements to temporary location...",
-                "Keybind::replaceHoldEvent", -1, INFO));
+  stack.insert(Exception("Saving old elements to temporary location...", "Keybind::replaceHoldEvent", -1, INFO));
   vector<void *> temp2 = heldInputs;
   if (temp2 != heldInputs)
-    exceptionStack.push_back(
-        Exception("Failed to save old elements. If replacement fails, the old "
-                  "elements won't be restored",
-                  "Keybind::replaceHoldEvent", -1, ERROR));
+    stack.insert(Exception("Failed to save old elements. If replacement fails, the old elements won't be restored", "Keybind::replaceHoldEvent", -1, ERROR));
   else
-    exceptionStack.push_back(
-        Exception("Done!", "Keybind::replaceHoldEvent", -1, INFO));
+    stack.insert(Exception("Done!", "Keybind::replaceHoldEvent", -1, INFO));
 
   // Replace event
-  exceptionStack.push_back(Exception("Attempting to replace event...",
-                                     "Keybind::replaceHoldEvent", -1, INFO));
+  stack.insert(Exception("Attempting to replace event...", "Keybind::replaceHoldEvent", -1, INFO));
   held = newEvent;
   if (&held != &newEvent)
   {
-    exceptionStack.push_back(Exception("Failed to replace event",
-                                       "Keybind::replaceHoldEvent", -1, ERROR));
-    exceptionStack.push_back(Exception("Attempting to revert to old event...",
-                                       "Keybind::replaceHoldEvent", -1, INFO));
+    stack.insert(Exception("Failed to replace event", "Keybind::replaceHoldEvent", -1, ERROR));
+    stack.insert(Exception("Attempting to revert to old event...", "Keybind::replaceHoldEvent", -1, INFO));
     held = temp;
     if (&held != &temp)
-      exceptionStack.push_back(Exception("Failed to revert to old event",
-                                         "Keybind::replaceHoldEvent", -1,
-                                         ERROR));
+      stack.insert(Exception("Failed to revert to old event",
+                             "Keybind::replaceHoldEvent", -1,
+                             ERROR));
     else
-      exceptionStack.push_back(Exception(
+      stack.insert(Exception(
           "Reverted to old event", "Keybind::replaceHoldEvent", -1, INFO));
   }
   else
-    exceptionStack.push_back(Exception("Successfully replaced hold event",
-                                       "Keybind::replaceHoldEvent", -1, INFO));
+    stack.insert(Exception("Successfully replaced hold event",
+                           "Keybind::replaceHoldEvent", -1, INFO));
 }
 
-void Keybind::replaceReleasedEvent(function<void(vector<void *> &)> newEvent,
-                                   vector<void *> releasedElements)
+void Keybind::replaceReleasedEvent(function<void(vector<void *> &)> newEvent, vector<void *> releasedElements)
 {
-  exceptionStack.push_back(Exception(
+  stack.insert(Exception(
       "Replacing released event", "Keybind::replaceReleasedEvent", -1, INFO));
   // Save old event
-  exceptionStack.push_back(
+  stack.insert(
       Exception("Saving old event to temporary location...",
                 "Keybind::replaceReleasedEvent", -1, INFO));
   const function<void(vector<void *> &)> temp = released;
   if (&temp != &released)
-    exceptionStack.push_back(
+    stack.insert(
         Exception("Failed to save old event to temporary location. If "
                   "replacement fails, the old function won't be restored",
                   "Keybind::replaceReleasedEvent", -1, WARNING));
   else
-    exceptionStack.push_back(
+    stack.insert(
         Exception("Done!", "Keybind::replaceReleasedEvent", -1, INFO));
 
   // Save old elements
-  exceptionStack.push_back(
+  stack.insert(
       Exception("Saving old elements to temporary location...",
                 "Keybind::replaceReleasedEvent", -1, INFO));
   vector<void *> temp2 = releasedInputs;
   if (temp2 != releasedInputs)
-    exceptionStack.push_back(
+    stack.insert(
         Exception("Failed to save old elements. If replacement fails, the old "
                   "elements won't be restored",
                   "Keybind::replaceReleasedEvent", -1, ERROR));
   else
-    exceptionStack.push_back(
+    stack.insert(
         Exception("Done!", "Keybind::replaceReleasedEvent", -1, INFO));
 
   // Replace event
-  exceptionStack.push_back(Exception("Attempting to replace event...",
-                                     "Keybind::replaceReleasedEvent", -1,
-                                     INFO));
+  stack.insert(Exception("Attempting to replace event...",
+                         "Keybind::replaceReleasedEvent", -1,
+                         INFO));
   released = newEvent;
   if (&released != &newEvent)
   {
-    exceptionStack.push_back(Exception(
+    stack.insert(Exception(
         "Failed to replace event", "Keybind::replaceReleasedEvent", -1, ERROR));
-    exceptionStack.push_back(Exception("Attempting to revert to old event...",
-                                       "Keybind::replaceReleasedEvent", -1,
-                                       INFO));
+    stack.insert(Exception("Attempting to revert to old event...",
+                           "Keybind::replaceReleasedEvent", -1,
+                           INFO));
     released = temp;
     if (&released != &temp)
-      exceptionStack.push_back(Exception("Failed to revert to old event",
-                                         "Keybind::replaceReleasedEvent", -1,
-                                         ERROR));
+      stack.insert(Exception("Failed to revert to old event",
+                             "Keybind::replaceReleasedEvent", -1,
+                             ERROR));
     else
-      exceptionStack.push_back(Exception(
+      stack.insert(Exception(
           "Reverted to old event", "Keybind::replaceReleasedEvent", -1, INFO));
   }
   else
-    exceptionStack.push_back(Exception("Successfully replaced released event",
-                                       "Keybind::replaceReleasedEvent", -1,
-                                       INFO));
+    stack.insert(Exception("Successfully replaced released event",
+                           "Keybind::replaceReleasedEvent", -1,
+                           INFO));
+}
+
+void Keybind::replaceKeyModifier(const KeyModifier newModifier)
+{
+  stack.insert(Exception("Replacing key modifier",
+                         "Keybind::replaceKeyModifier", -1, INFO));
+  stack.insert(
+      Exception("Saving old modifier to temporary location...",
+                "Keybind::replaceKeyModifier", -1, INFO));
+  KeyModifier temp = mod;
+  if (temp != mod)
+    stack.insert(
+        Exception("Failed to save old modifier to temporary location. If "
+                  "replacement fails, the old modifier won't be restored",
+                  "Keybind::replaceKeyModifier", -1, WARNING));
+  else
+    stack.insert(
+        Exception("Done!", "Keybind::replaceKeyModifier", -1, INFO));
+  stack.insert(Exception("Attempting to replace modifier...",
+                         "Keybind::replaceKeyModifier", -1, ERROR));
+  mod = newModifier;
+  if (mod != newModifier)
+  {
+    stack.insert(Exception("Failed to replace modifier",
+                           "Keybind::replaceKeyModifier", -1,
+                           ERROR));
+    stack.insert(Exception("Attempting to restore old modifier...",
+                           "Keybind::replaceKeyModifier", -1,
+                           INFO));
+    mod = temp;
+    if (mod != temp)
+      stack.insert(Exception("Failed to restore modifier",
+                             "Keybind::replaceKeyModifier", -1,
+                             ERROR));
+    else
+      stack.insert(Exception(
+          "Old modifier restored", "Keybind::replaceKeyModifier", -1, INFO));
+  }
+  else
+    stack.insert(Exception("Successfully replaced modifier",
+                           "Keybind::replaceKeyModifier", -1,
+                           INFO));
 }
 
 void Keybind::toggleActive() { active = !active; }
@@ -447,30 +444,88 @@ void Keybind::activate() { active = true; }
 
 void Keybind::removeHoldEvent()
 {
-  exceptionStack.push_back(
-      Exception("Removing hold event", "Keybind::removeHoldEvent", -1, INFO));
+  stack.insert(Exception("Removing hold event", "Keybind::removeHoldEvent", -1, INFO));
   held = nullptr;
   heldInputs.clear();
 }
 
 void Keybind::removeReleasedEvent()
 {
-  exceptionStack.push_back(Exception("Removing released event",
-                                     "Keybind::removeReleasedEvent", -1, INFO));
+  stack.insert(Exception("Removing released event",
+                         "Keybind::removeReleasedEvent", -1, INFO));
   released = nullptr;
   releasedInputs.clear();
 }
 
-std::vector<Exception> Keybind::errorStack(vector<Exception> *retrunval)
+void Keybind::removeKeyModifier()
 {
-  if (retrunval != nullptr)
-    retrunval = &exceptionStack;
-  return exceptionStack;
+  stack.insert(Exception("Removing key modifier",
+                         "Keybind::removeKeyModifier", -1, INFO));
+  mod = none;
 }
 
-void Keybind::flushErrorStack() { exceptionStack.clear(); }
+ExceptionStack *Keybind::errorStack(ExceptionStack *retrunval)
+{
+  if (retrunval != nullptr)
+    retrunval = &stack;
+  return &stack;
+}
 
 // Keyboard Event Handler implementation
+KeyboardEventHandler::KeyboardEventHandler(map<pair<SDL_KeyCode, KeyModifier>, Keybind *> import)
+{
+  stack.insert(Exception("Creating new Keyboard Event Handler",
+                         "KeyboardEventHandler::KeyboardEventHandler", -1,
+                         INFO));
+  if (!import.empty())
+    keybinds = import;
+}
+
+void KeyboardEventHandler::addKeybind(Keybind *keybind)
+{
+  stack.insert(Exception("Adding keybind to handler",
+                         "KeyboardEventHandler::addKeybind", -1, INFO));
+  keybinds.insert(make_pair(
+      make_pair(keybind->getKeybind(), keybind->getModifier()), keybind));
+}
+
+Keybind *KeyboardEventHandler::getKeybind(SDL_KeyCode key, KeyModifier modifier, Keybind *returnval)
+{
+  Keybind *val = keybinds.find(make_pair(key, modifier))->second;
+  if (returnval != nullptr)
+    returnval = val;
+  return val;
+}
+
+Keybind *KeyboardEventHandler::getKeybind(Keybind *bind, Keybind *returnval)
+{
+  Keybind *val =
+      keybinds.find(make_pair(bind->getKeybind(), bind->getModifier()))->second;
+  if (returnval != nullptr)
+    returnval = val;
+  return val;
+}
+
+void KeyboardEventHandler::removeKeybind(SDL_KeyCode key, KeyModifier modifier)
+{
+  stack.insert(Exception("Removing keybind from handler",
+                         "KeyboardEventHandler::removeKeybind.0", -1, INFO));
+  keybinds.erase(make_pair(key, modifier));
+}
+
+void KeyboardEventHandler::removeKeybind(Keybind *bind)
+{
+  stack.insert(Exception("Removing keybind from handler",
+                         "KeyboardEventHandler::removeKeybind.1", -1, INFO));
+  keybinds.erase(make_pair(bind->getKeybind(), bind->getModifier()));
+}
+
+ExceptionStack *KeyboardEventHandler::errorStack(ExceptionStack *retrunval)
+{
+  if (retrunval != nullptr)
+    retrunval = &stack;
+  return &stack;
+}
 
 // Mouse Interactable implementation
 
@@ -523,11 +578,9 @@ function<void(vector<void *> &)> MouseInteractable::getMiddleHoldFunction(functi
   return mhFunc;
 }
 
-std::vector<Exception> MouseInteractable::errorStack(vector<Exception> *errorStack)
+ExceptionStack *MouseInteractable::errorStack(ExceptionStack *errorStack)
 {
   if (errorStack != nullptr)
-    *errorStack = exceptionStack;
-  return exceptionStack;
+    errorStack = &stack;
+  return &stack;
 }
-
-void MouseInteractable::flushErrorStack() { exceptionStack.clear(); }

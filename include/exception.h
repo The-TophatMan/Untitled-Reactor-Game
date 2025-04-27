@@ -40,16 +40,16 @@ enum LogType
 class Exception
 {
 private:
-  string message; ///< Exception message
-  int code;       ///< Error code
-  string path;    ///< File path where the exception occurred
+  string message;   ///< Exception message
+  int code;         ///< Error code
+  string path;      ///< File path where the exception occurred
   LogType severity; ///< Severity level of the exception
 
 public:
-  Exception(const Exception&) = default;
-  Exception(Exception&&) noexcept = default;
-  Exception& operator=(const Exception&) = default;
-  Exception& operator=(Exception&&) noexcept = default;
+  Exception(const Exception &) = default;
+  Exception(Exception &&) noexcept = default;
+  Exception &operator=(const Exception &) = default;
+  Exception &operator=(Exception &&) noexcept = default;
 
   /**
    * @brief Constructs an Exception object with detailed information.
@@ -72,7 +72,7 @@ public:
    * @param returnval Optional pointer to store the message.
    * @return The exception message.
    */
-  const string Message(string* returnval = nullptr);
+  string Message(string *returnval = nullptr);
 
   /**
    * @brief Retrieves the error code of the exception.
@@ -80,7 +80,7 @@ public:
    * @param returnval Optional pointer to store the error code.
    * @return The error code.
    */
-  const int Code(int* returnval = nullptr);
+  int Code(int *returnval = nullptr);
 
   /**
    * @brief Retrieves the file path where the exception occurred.
@@ -88,7 +88,7 @@ public:
    * @param returnval Optional pointer to store the file path.
    * @return The file path.
    */
-  const string Path(string* returnval = nullptr);
+  string Path(string *returnval = nullptr);
 
   /**
    * @brief Retrieves the severity level of the exception.
@@ -96,7 +96,7 @@ public:
    * @param returnval Optional pointer to store the severity level.
    * @return The severity level.
    */
-  const LogType Severity(LogType* returnval = nullptr);
+  LogType Severity(LogType *returnval = nullptr);
 
   /**
    * @brief Appends a specified path to the existing path of the exception.
@@ -107,6 +107,30 @@ public:
   Exception operator<<(string addToPath);
 };
 
+class ExceptionStack
+{
+private:
+  vector<Exception> stack;
+
+public:
+  ExceptionStack(const ExceptionStack &) = default;
+  ExceptionStack(ExceptionStack &&) = default;
+  ExceptionStack &operator=(const ExceptionStack &) = default;
+  ExceptionStack &operator=(ExceptionStack &&) = default;
+  ExceptionStack() {}
+
+  /**
+   * @brief Appends a specified path to each Exception object in the stack.
+   *
+   * @param pathtoadd The path string to append to each Exception in the stack.
+   */
+  void addPath(string pathtoadd);
+  int size(int *returnval = nullptr);
+  Exception exception(const int pos, Exception *returnval = nullptr);
+  void insert(Exception e);
+  void flushStack();
+};
+
 /**
  * @class Logging
  * @brief A class for logging messages to a stream with different severity levels.
@@ -114,16 +138,16 @@ public:
 class Logging
 {
 private:
-  LogType loggingLevel[4] = { LogType::empty, LogType::empty, LogType::empty, LogType::empty };
-  ostream* output; ///< Output stream for logging
+  LogType loggingLevel[4] = {LogType::empty, LogType::empty, LogType::empty, LogType::empty};
+  ostream *output; ///< Output stream for logging
 
   void writeTime(); ///< Writes the current time to the output stream
 
 public:
-  Logging(const Logging&) = delete;
-  Logging(Logging&&) = default;
-  Logging& operator=(const Logging&) = delete;
-  Logging& operator=(Logging&&) = default;
+  Logging(const Logging &) = delete;
+  Logging(Logging &&) = default;
+  Logging &operator=(const Logging &) = delete;
+  Logging &operator=(Logging &&) = default;
 
   /**
    * @brief Constructs a Logging object for logging messages to a stream.
@@ -131,7 +155,7 @@ public:
    * @param stream The output stream for logging.
    * @param level Optional initializer list of logging levels to enable.
    */
-  Logging(ostream& stream, initializer_list<LogType> level = {});
+  Logging(ostream &stream, initializer_list<LogType> level = {});
 
   /**
    * @brief Logs a message with a specified severity level.
@@ -146,21 +170,21 @@ public:
    *
    * @param e The Exception object to log.
    */
-  void log(Exception& e);
+  void log(Exception e);
 
   /**
    * @brief Logs a stack of Exception objects.
    *
    * @param exceptionStack A vector of Exception objects to log.
    */
-  void log(vector<Exception> exceptionStack);
+  void log(ExceptionStack exceptionStack);
 
   /**
    * @brief Sets the output stream for logging.
    *
    * @param out Pointer to the new output stream.
    */
-  void setOutput(ostream* out);
+  void setOutput(ostream *out);
 
   /**
    * @brief Adds a new logging level to the Logging object.
@@ -181,13 +205,4 @@ public:
    */
   ~Logging();
 };
-
-/**
- * @brief Appends a specified path to each Exception object in the stack.
- *
- * @param stack Pointer to a vector of Exception objects to which the path will be added.
- * @param pathtoadd The path string to append to each Exception in the stack.
- */
-void addPath(vector<Exception>* stack, string pathtoadd);
-
 #endif
