@@ -2,6 +2,7 @@
 #define WINDOW_H
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keycode.h>
 #include <map>
 #include <vector>
@@ -38,17 +39,6 @@ public:
   ExceptionStack *errorStack(ExceptionStack *returnval = nullptr);
 };
 
-enum KeyModifier
-{
-  LEFT_CONTROL,
-  RIGHT_CONTROL,
-  LEFT_ALT,
-  RIGHT_ALT,
-  LEFT_SHIFT,
-  RIGHT_SHIFT,
-  none
-};
-
 class Keybind
 {
 private:
@@ -60,7 +50,7 @@ private:
       heldInputs,
       releasedInputs;
   bool active;
-  KeyModifier mod;
+  Uint16 mod;
   ExceptionStack stack;
 
 public:
@@ -69,7 +59,7 @@ public:
   Keybind &operator=(const Keybind &) = default;
   Keybind &operator=(Keybind &&) = default;
   Keybind(const SDL_KeyCode key,
-          KeyModifier modifier = none,
+          Uint16 modifier = 0,
           function<void(vector<void *> &)> heldEvent = nullptr,
           vector<void *> heldElements = {},
           function<void(vector<void *> &)> releasedEvent = nullptr,
@@ -81,13 +71,13 @@ public:
   vector<void *> getReleasedElements(vector<void *> *returnval = nullptr);
   bool isActive(bool *returnval = nullptr);
   SDL_KeyCode getKeybind(SDL_KeyCode *returnval = nullptr);
-  KeyModifier getModifier(KeyModifier *returnval = nullptr);
+  Uint16 getModifier(Uint16 *returnval = nullptr);
 
   void replaceHoldEvent(function<void(vector<void *> &)> newEvent,
                         vector<void *> holdElements);
   void replaceReleasedEvent(function<void(vector<void *> &)> newEvent,
                             vector<void *> releasedElements);
-  void replaceKeyModifier(const KeyModifier newModifier);
+  void replaceModifier(const Uint16 newModifier);
   void toggleActive();
   void setActive(const bool set);
   void deactivate();
@@ -95,7 +85,7 @@ public:
 
   void removeHoldEvent();
   void removeReleasedEvent();
-  void removeKeyModifier();
+  void removeModifier();
 
   ExceptionStack *errorStack(ExceptionStack *retrunval = nullptr);
 };
@@ -103,7 +93,7 @@ public:
 class KeyboardEventHandler
 {
 private:
-  map<pair<SDL_KeyCode, KeyModifier>, Keybind *> keybinds;
+  map<pair<SDL_KeyCode, Uint16>, Keybind *> keybinds;
   ExceptionStack stack;
 
 public:
@@ -111,13 +101,20 @@ public:
   KeyboardEventHandler(KeyboardEventHandler &&) = default;
   KeyboardEventHandler &operator=(const KeyboardEventHandler &) = default;
   KeyboardEventHandler &operator=(KeyboardEventHandler &&) = default;
-  KeyboardEventHandler(map<pair<SDL_KeyCode, KeyModifier>, Keybind *> import = {});
+  KeyboardEventHandler(map<pair<SDL_KeyCode, Uint16>, Keybind *> import = {});
 
   void addKeybind(Keybind *keybind);
-  Keybind *getKeybind(SDL_KeyCode key, KeyModifier modifier = none, Keybind *returnval = nullptr);
+  Keybind *getKeybind(SDL_KeyCode key, Uint16 modifier = 0, Keybind *returnval = nullptr);
   Keybind *getKeybind(Keybind *bind, Keybind *returnval = nullptr);
-  void removeKeybind(SDL_KeyCode key, KeyModifier modifier = none);
+  void removeKeybind(SDL_KeyCode key, Uint16 modifier = 0);
   void removeKeybind(Keybind *bind);
+
+  void cycleEvents(SDL_Event *event)
+  {
+    while (SDL_PollEvent(event))
+    {
+    }
+  }
 
   ExceptionStack *errorStack(ExceptionStack *retrunval = nullptr);
 };

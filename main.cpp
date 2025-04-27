@@ -1,3 +1,4 @@
+#include <SDL2/SDL_events.h>
 #include <string>
 #include <iostream>
 #include "include/cla.h"
@@ -12,7 +13,7 @@ int main(int argc, char **argv)
   CLA_Handler cla;
   cla.addArgument("-h", help);
   cla.addArgument("--help", help);
-  cla.addArgument("-F", setFile, vector<void *>{&logger});
+  cla.addArgument("-f", setFile, vector<void *>{&logger});
   cla.addArgument("--file", setFile, vector<void *>{&logger});
   cla.addArgument("-p", logTest, vector<void *>{&logger});
   cla.addArgument("-l", logLevel, vector<void *>{&logger});
@@ -27,6 +28,10 @@ int main(int argc, char **argv)
   SDL_Event event;
   while (game.isRunning(&event))
   {
+    while (SDL_PollEvent(&event))
+    {
+      cout << event.key.keysym.sym << endl;
+    }
     SDL_Delay(10);
   }
   exit(0);

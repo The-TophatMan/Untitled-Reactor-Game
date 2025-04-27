@@ -1,5 +1,6 @@
 #include "../include/window.h"
 #include "../include/exception.h"
+#include <SDL2/SDL_events.h>
 
 // Window implementation
 Window::Window(const char *title, const int width, const int height, uint32_t flags)
@@ -56,7 +57,10 @@ bool Window::isRunning(SDL_Event *event, bool *returnval)
 {
   while (SDL_PollEvent(event))
     if (event->type == SDL_QUIT)
+    {
       execute = false;
+      break;
+    }
   if (returnval != nullptr)
     *returnval = execute;
   return execute;
@@ -222,7 +226,7 @@ ExceptionStack *Window::errorStack(ExceptionStack *returnval)
 
 // Keybind implementation
 Keybind::Keybind(SDL_KeyCode key,
-                 KeyModifier modifier,
+                 Uint16 modifier,
                  function<void(vector<void *> &)> heldEvent,
                  vector<void *> heldElements,
                  function<void(vector<void *> &)> releasedEvent,
@@ -286,7 +290,7 @@ SDL_KeyCode Keybind::getKeybind(SDL_KeyCode *returnval)
   return keybind;
 }
 
-KeyModifier Keybind::getModifier(KeyModifier *returnval)
+Uint16 Keybind::getModifier(Uint16 *returnval)
 {
   if (returnval != nullptr)
     returnval = &mod;
@@ -392,45 +396,45 @@ void Keybind::replaceReleasedEvent(function<void(vector<void *> &)> newEvent, ve
                            INFO));
 }
 
-void Keybind::replaceKeyModifier(const KeyModifier newModifier)
+void Keybind::replaceModifier(const Uint16 newModifier)
 {
   stack.insert(Exception("Replacing key modifier",
-                         "Keybind::replaceKeyModifier", -1, INFO));
+                         "Keybind::replaceUint16", -1, INFO));
   stack.insert(
       Exception("Saving old modifier to temporary location...",
-                "Keybind::replaceKeyModifier", -1, INFO));
-  KeyModifier temp = mod;
+                "Keybind::replaceUint16", -1, INFO));
+  Uint16 temp = mod;
   if (temp != mod)
     stack.insert(
         Exception("Failed to save old modifier to temporary location. If "
                   "replacement fails, the old modifier won't be restored",
-                  "Keybind::replaceKeyModifier", -1, WARNING));
+                  "Keybind::replaceUint16", -1, WARNING));
   else
     stack.insert(
-        Exception("Done!", "Keybind::replaceKeyModifier", -1, INFO));
+        Exception("Done!", "Keybind::replaceUint16", -1, INFO));
   stack.insert(Exception("Attempting to replace modifier...",
-                         "Keybind::replaceKeyModifier", -1, ERROR));
+                         "Keybind::replaceUint16", -1, ERROR));
   mod = newModifier;
   if (mod != newModifier)
   {
     stack.insert(Exception("Failed to replace modifier",
-                           "Keybind::replaceKeyModifier", -1,
+                           "Keybind::replaceUint16", -1,
                            ERROR));
     stack.insert(Exception("Attempting to restore old modifier...",
-                           "Keybind::replaceKeyModifier", -1,
+                           "Keybind::replaceUint16", -1,
                            INFO));
     mod = temp;
     if (mod != temp)
       stack.insert(Exception("Failed to restore modifier",
-                             "Keybind::replaceKeyModifier", -1,
+                             "Keybind::replaceUint16", -1,
                              ERROR));
     else
       stack.insert(Exception(
-          "Old modifier restored", "Keybind::replaceKeyModifier", -1, INFO));
+          "Old modifier restored", "Keybind::replaceUint16", -1, INFO));
   }
   else
     stack.insert(Exception("Successfully replaced modifier",
-                           "Keybind::replaceKeyModifier", -1,
+                           "Keybind::replaceUint16", -1,
                            INFO));
 }
 
@@ -457,11 +461,11 @@ void Keybind::removeReleasedEvent()
   releasedInputs.clear();
 }
 
-void Keybind::removeKeyModifier()
+void Keybind::removeModifier()
 {
   stack.insert(Exception("Removing key modifier",
-                         "Keybind::removeKeyModifier", -1, INFO));
-  mod = none;
+                         "Keybind::removeUint16", -1, INFO));
+  mod = 0;
 }
 
 ExceptionStack *Keybind::errorStack(ExceptionStack *retrunval)
@@ -472,7 +476,7 @@ ExceptionStack *Keybind::errorStack(ExceptionStack *retrunval)
 }
 
 // Keyboard Event Handler implementation
-KeyboardEventHandler::KeyboardEventHandler(map<pair<SDL_KeyCode, KeyModifier>, Keybind *> import)
+KeyboardEventHandler::KeyboardEventHandler(map<pair<SDL_KeyCode, Uint16>, Keybind *> import)
 {
   stack.insert(Exception("Creating new Keyboard Event Handler",
                          "KeyboardEventHandler::KeyboardEventHandler", -1,
@@ -483,13 +487,11 @@ KeyboardEventHandler::KeyboardEventHandler(map<pair<SDL_KeyCode, KeyModifier>, K
 
 void KeyboardEventHandler::addKeybind(Keybind *keybind)
 {
-  stack.insert(Exception("Adding keybind to handler",
-                         "KeyboardEventHandler::addKeybind", -1, INFO));
-  keybinds.insert(make_pair(
-      make_pair(keybind->getKeybind(), keybind->getModifier()), keybind));
+  stack.insert(Exception("Adding keybind to handler", "KeyboardEventHandler::addKeybind", -1, INFO));
+  keybinds.insert(make_pair(make_pair(keybind->getKeybind(), keybind->getModifier()), keybind));
 }
 
-Keybind *KeyboardEventHandler::getKeybind(SDL_KeyCode key, KeyModifier modifier, Keybind *returnval)
+Keybind *KeyboardEventHandler::getKeybind(SDL_KeyCode key, Uint16 modifier, Keybind *returnval)
 {
   Keybind *val = keybinds.find(make_pair(key, modifier))->second;
   if (returnval != nullptr)
@@ -506,7 +508,7 @@ Keybind *KeyboardEventHandler::getKeybind(Keybind *bind, Keybind *returnval)
   return val;
 }
 
-void KeyboardEventHandler::removeKeybind(SDL_KeyCode key, KeyModifier modifier)
+void KeyboardEventHandler::removeKeybind(SDL_KeyCode key, Uint16 modifier)
 {
   stack.insert(Exception("Removing keybind from handler",
                          "KeyboardEventHandler::removeKeybind.0", -1, INFO));
