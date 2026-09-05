@@ -55,7 +55,8 @@ size_t CLA_Callback::getExternalInputAmount() const
 
 void CLA_Callback::callFunction(const vector<string> input) const
 {
-  func(internalInputs, input);
+  for (int i = 0; i < input.size(); i++)
+    func(internalInputs, input);
 }
 
 //* CLA_Handler
@@ -76,12 +77,12 @@ int CLA_Handler::executeArg(const int argc, char **argv, const int i, const stri
 {
   auto mapping = arguments.find(arg);
   if (mapping == arguments.end()) // Prevent unrecognized arguments
-    throw invalid_argument(arg + " is not a recognized argument");
+    throw invalid_argument("-" + arg + " is not a recognized argument");
   CLA_Callback func = mapping->second;
   if (i + func.getExternalInputAmount() > argc) // Prevent not enough inputs for argument
     throw out_of_range("Not enough arguments for " + arg);
   vector<string> input;
-  for (int o = 1; o < func.getExternalInputAmount(); o++)
+  for (int o = 1; o < func.getExternalInputAmount() + 1; o++)
   {
     if (argv[i + o][0] == '-') // Prevent reading in argument as input
       throw out_of_range(arg + " ran into another argument before finding all required inputs");
@@ -126,7 +127,7 @@ void CLA_Handler::cycleArguments(const int argc, char **argv) const
       const int lastelem = string(argv[i]).size() - 1;
       for (int o = 1; o < lastelem; o++)
       {
-        const string arg = to_string(argv[i][o]);
+        const string arg(1, argv[i][o]);
         const auto mapping = arguments.find(arg);
         if (mapping == arguments.end()) // Prevent unrecognized arguments
           throw invalid_argument("-" + arg + " is not a recognized argument");
@@ -135,7 +136,7 @@ void CLA_Handler::cycleArguments(const int argc, char **argv) const
           throw invalid_argument("-" + arg + " requires input, but is not last argument in list " + argv[i]);
         func.callFunction({});
       }
-      i = executeArg(argc, argv, i, to_string(argv[i][lastelem]));
+      i = executeArg(argc, argv, i, string(1, argv[i][lastelem]));
     }
     else // Direct inputs
     {
@@ -144,7 +145,7 @@ void CLA_Handler::cycleArguments(const int argc, char **argv) const
       if (i + func.getExternalInputAmount() > argc) // Prevent not enough inputs for no-arg input
         throw out_of_range("Not enough inputs for input " + to_string(noarg));
       vector<string> input;
-      for (int o = 0; o < func.getExternalInputAmount(); o++)
+      for (int o = 1; o < func.getExternalInputAmount() + 1; o++)
         input.push_back(argv[i + o]);
       func.callFunction(input);
       i = i + func.getExternalInputAmount();
