@@ -79,17 +79,16 @@ using namespace std;
 class CLA_Handler
 {
 private:
-  map<char, pair<function<void(const string&, vector<void*>&)>, vector<void*>>> sca = {};   // Single Character Arguments. Prefixed by -
-  map<string, pair<function<void(const string&, vector<void*>&)>, vector<void*>>> mca = {}; // Multi-Character Arguments. Prefixed by --
-  pair<function<void(const string&, vector<void*>&)>, vector<void*>> noargArgument;
+  map<char, pair<function<void(const string &, vector<void *> &)>, vector<void *>>> sca = {};   // Single Character Arguments. Prefixed by -
+  map<string, pair<function<void(const string &, vector<void *> &)>, vector<void *>>> mca = {}; // Multi-Character Arguments. Prefixed by --
+  pair<function<void(const string &, vector<void *> &)>, vector<void *>> noargArgument;
 
 protected:
 public:
   CLA_Handler();
-  CLA_Handler(const CLA_Handler&) = default;
-  CLA_Handler(CLA_Handler&&) = default;
-  CLA_Handler& operator=(const CLA_Handler&) = default;
-  CLA_Handler& operator=(CLA_Handler&&) = default;
+  CLA_Handler(const CLA_Handler &) = default;
+  CLA_Handler(CLA_Handler &&) = default;
+  CLA_Handler &operator=(const CLA_Handler &) = default;
 
   /**
    * @brief Registers a new argument with its associated callback function.
@@ -100,7 +99,7 @@ public:
    *
    * @throws Exception if the argument already exists.
    */
-  void addArgument(const string argument, const function<void(const string&, vector<void*>&)>& func, vector<void*> extradata = {});
+  void addArgument(const string argument, const function<void(const string &, vector<void *> &)> &func, vector<void *> extradata = {});
 
   /**
    * @brief Registers a no-argument handler.
@@ -110,35 +109,7 @@ public:
    *
    * @throws Exception if a no-argument handler already exists.
    */
-  void addnoargArgument(function<void(const string&, vector<void*>&)>& func, vector<void*> extradata = {});
-
-  /**
-   * @brief Modifies an existing argument's callback function and/or additional data.
-   *
-   * @param argument The argument to modify (e.g., "-a" or "--argument").
-   * @param newFunc The new callback function to associate with the argument (optional).
-   * @param extradata The new additional data to associate with the argument (optional).
-   *
-   * @throws Exception if the argument does not exist.
-   */
-  void modifyArgument(const string argument, const function<void(const string&, vector<void*>&)>& newFunc = NULL, const vector<void*> extradata = {});
-
-  /**
-   * @brief Renames an existing argument to a new argument name.
-   *
-   * @param oldArg The current name of the argument.
-   * @param newArg The new name for the argument.
-   *
-   * @throws Exception if the old argument does not exist or the new argument already exists.
-   */
-  void modifyArgument(const string oldArg, const string newArg);
-
-  /**
-   * @brief Updates the no-argument handler.
-   *
-   * @param func The new callback function to associate with the no-argument handler.
-   */
-  void modifynoargArgument(function<void(const string&, vector<void*>&)>& func);
+  void addnoargArgument(function<void(const string &, vector<void *> &)> &func, vector<void *> extradata = {});
 
   /**
    * @brief Parses and processes command-line arguments.
@@ -146,6 +117,6 @@ public:
    * @param argc The number of command-line arguments.
    * @param argv The array of command-line arguments.
    */
-  void cycleArguments(const int argc, char** argv);
+  void cycleArguments(const int argc, char **argv);
 };
 #endif
