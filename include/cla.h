@@ -26,7 +26,7 @@
  * @code
  * #include "cla.h"
  * CLA_Handler handler;
- * handler.addArgument("-a", [](const string& value, vector<void*>& data) {
+ * handler.addArgument("-a", [](const string& value, vector<string>& data) {
  *     // Handle argument logic here
  * });
  * handler.cycleArguments(argc, argv);
@@ -44,72 +44,49 @@
  */
 #ifndef CLA_H
 #define CLA_H
-#include "exception.h"
 #include <functional>
 #include <map>
 #include <string>
-#include <utility>
 #include <vector>
-#include <iostream>
 
 using namespace std;
+using Function = function<void(const vector<void *> &, const vector<string> &)>;
 
-/**
- * @class CLA_Handler
- * @brief A class for handling command-line arguments.
- *
- * The CLA_Handler class provides functionality to parse and process command-line
- * arguments, including single-character arguments (e.g., `-a`), multi-character
- * arguments (e.g., `--argument`), and non-flag arguments. It allows users to
- * register, modify, and handle arguments with associated callback functions.
- *
- * Features:
- * - Register single-character and multi-character arguments with callback functions.
- * - Modify existing arguments or their associated behaviors.
- * - Handle non-flag arguments with a dedicated callback.
- * - Parse and process command-line arguments based on predefined mappings.
- *
- * Usage:
- * - Use `addArgument` to register arguments and their handlers.
- * - Use `addnoargArgument` to register a no-argument handler.
- * - Use `modifyArgument` to update existing arguments or their behaviors.
- * - Use `modifynoargArgument` to update the no-argument handler.
- * - Use `cycleArguments` to parse and process command-line arguments.
- */
+class CLA_Input
+{
+private:
+  Function func;                 // The function to call
+  vector<void *> internalInputs; // Any variables the function is expecting defined inside the program
+  uint externalInputs;           // The number of CLA_Inputs the function is expecting from the command line
+
+public:
+  CLA_Input(const Function func, const vector<void *> internalInputs = {}, const uint externalInputsExpected = 0);
+
+  uint getExternalInputAmount();
+  void callFunction(const vector<string> input);
+};
+
 class CLA_Handler
 {
 private:
-  map<char, pair<function<void(const string &, vector<void *> &)>, vector<void *>>> sca = {};   // Single Character Arguments. Prefixed by -
-  map<string, pair<function<void(const string &, vector<void *> &)>, vector<void *>>> mca = {}; // Multi-Character Arguments. Prefixed by --
-  pair<function<void(const string &, vector<void *> &)>, vector<void *>> noargArgument;
+  map<string, CLA_Input> arguments;
+  vector<CLA_Input> inputs;
 
-protected:
+  void appendArg(const pair<string, CLA_Input> arg);
+  int executeArg(const int argc, const char **argv, const int i, const string arg);
+
 public:
   CLA_Handler();
   CLA_Handler(const CLA_Handler &) = default;
   CLA_Handler(CLA_Handler &&) = default;
   CLA_Handler &operator=(const CLA_Handler &) = default;
 
-  /**
-   * @brief Registers a new argument with its associated callback function.
-   *
-   * @param argument The argument to register (e.g., "-a" or "--argument").
-   * @param func The callback function to execute when the argument is encountered.
-   * @param extradata Optional additional data to pass to the callback function.
-   *
-   * @throws Exception if the argument already exists.
-   */
-  void addArgument(const string argument, const function<void(const string &, vector<void *> &)> &func, vector<void *> extradata = {});
+  void addArgument(const string argument, const Function func, const vector<void *> interalInputs = {}, const uint externalInputsExpected = 0);
+  void addArgument(const string argument, const CLA_Input input);
+  void addArgument(const pair<string, CLA_Input> argument);
 
-  /**
-   * @brief Registers a no-argument handler.
-   *
-   * @param func The callback function to execute when a non-flag argument is encountered.
-   * @param extradata Optional additional data to pass to the callback function.
-   *
-   * @throws Exception if a no-argument handler already exists.
-   */
-  void addnoargArgument(function<void(const string &, vector<void *> &)> &func, vector<void *> extradata = {});
+  void addInput(const Function func, const vector<void *> internalInputs = {}, const uint externalInputsExpected = 0);
+  void addInput(const CLA_Input input);
 
   /**
    * @brief Parses and processes command-line arguments.

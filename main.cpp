@@ -11,28 +11,28 @@ int main(int argc, char **argv)
 {
   Logging logger(cout);
   CLA_Handler cla;
-  cla.addArgument("-h", help);
-  cla.addArgument("--help", help);
-  cla.addArgument("-f", setFile, vector<void *>{&logger});
-  cla.addArgument("--file", setFile, vector<void *>{&logger});
-  cla.addArgument("-p", logTest, vector<void *>{&logger});
-  cla.addArgument("-l", logLevel, vector<void *>{&logger});
-  cla.addArgument("--logging", logLevel, vector<void *>{&logger});
-  cla.addArgument("-P", exceptionTest, vector<void *>{&logger});
+  cla.addArgument("h", help);
+  cla.addArgument("help", help);
+  cla.addArgument("f", setFile, {&logger}, 1);
+  cla.addArgument("file", setFile, {&logger}, 1);
+  cla.addArgument("p", logTest, {&logger});
+  cla.addArgument("l", logLevel, {&logger}, 1);
+  cla.addArgument("logging", logLevel, {&logger}, 1);
+  cla.addArgument("P", exceptionTest, {&logger});
   cla.cycleArguments(argc, argv);
-  Window game("Untitled Reactor Game");
-  game.errorStack()->addPath("game");
-  logger.log(*game.errorStack());
-  game.errorStack()->flushStack();
-  KeyboardEventHandler keyHandler;
-  SDL_Event event;
-  while (game.isRunning(&event))
-  {
-    while (SDL_PollEvent(&event))
-    {
-      cout << event.key.keysym.sym << endl;
-    }
-    SDL_Delay(10);
-  }
+  // Window game("Untitled Reactor Game");
+  // game.errorStack()->addPath("game");
+  // logger.log(*game.errorStack());
+  // game.errorStack()->flushStack();
+  // KeyboardEventHandler keyHandler;
+  // SDL_Event event;
+  // while (game.isRunning(&event))
+  // {
+  //   while (SDL_PollEvent(&event))
+  //   {
+  //     cout << event.key.keysym.sym << endl;
+  //   }
+  //   SDL_Delay(10);
+  // }
   exit(0);
 }

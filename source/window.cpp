@@ -227,10 +227,10 @@ ExceptionStack *Window::errorStack(ExceptionStack *returnval)
 // Keybind implementation
 Keybind::Keybind(SDL_KeyCode key,
                  Uint16 modifier,
-                 function<void(vector<void *> &)> heldEvent,
-                 vector<void *> heldElements,
-                 function<void(vector<void *> &)> releasedEvent,
-                 vector<void *> releasedElements)
+                 function<void(vector<string> &)> heldEvent,
+                 vector<string> heldElements,
+                 function<void(vector<string> &)> releasedEvent,
+                 vector<string> releasedElements)
 {
   stack.insert(Exception("Creating new keybind", "Keybind::Keybind.0", -1, INFO));
   keybind = key;
@@ -248,28 +248,28 @@ Keybind::Keybind(SDL_KeyCode key,
   stack.insert(Exception("Finished creating keybind", "Keybind::Keybind", -1, INFO));
 }
 
-function<void(vector<void *> &)> Keybind::getHoldEvent(function<void(vector<void *> &)> *returnval)
+function<void(vector<string> &)> Keybind::getHoldEvent(function<void(vector<string> &)> *returnval)
 {
   if (returnval != nullptr)
     returnval = &held;
   return held;
 }
 
-function<void(vector<void *> &)> Keybind::getReleasedEvent(function<void(vector<void *> &)> *returnval)
+function<void(vector<string> &)> Keybind::getReleasedEvent(function<void(vector<string> &)> *returnval)
 {
   if (returnval != nullptr)
     returnval = &released;
   return released;
 }
 
-vector<void *> Keybind::getHeldElements(vector<void *> *returnval)
+vector<string> Keybind::getHeldElements(vector<string> *returnval)
 {
   if (returnval != nullptr)
     returnval = &heldInputs;
   return heldInputs;
 }
 
-vector<void *> Keybind::getReleasedElements(vector<void *> *returnval)
+vector<string> Keybind::getReleasedElements(vector<string> *returnval)
 {
   if (returnval != nullptr)
     returnval = &releasedInputs;
@@ -297,12 +297,12 @@ Uint16 Keybind::getModifier(Uint16 *returnval)
   return mod;
 }
 
-void Keybind::replaceHoldEvent(function<void(vector<void *> &)> newEvent, vector<void *> holdElements)
+void Keybind::replaceHoldEvent(function<void(vector<string> &)> newEvent, vector<string> holdElements)
 {
   stack.insert(Exception("Replacing hold event", "Keybind::replaceHoldEvent", -1, INFO));
   // Save old event
   stack.insert(Exception("Saving old event to temporary location...", "Keybind::replaceHoldEvent", -1, INFO));
-  const function<void(vector<void *> &)> temp = held;
+  const function<void(vector<string> &)> temp = held;
   if (&temp != &held)
     stack.insert(Exception("Failed to save old event to temporary location. If replacement fails, the old function won't be restored", "Keybind::replaceHoldEvent", -1, WARNING));
   else
@@ -310,7 +310,7 @@ void Keybind::replaceHoldEvent(function<void(vector<void *> &)> newEvent, vector
 
   // Save old elements
   stack.insert(Exception("Saving old elements to temporary location...", "Keybind::replaceHoldEvent", -1, INFO));
-  vector<void *> temp2 = heldInputs;
+  vector<string> temp2 = heldInputs;
   if (temp2 != heldInputs)
     stack.insert(Exception("Failed to save old elements. If replacement fails, the old elements won't be restored", "Keybind::replaceHoldEvent", -1, ERROR));
   else
@@ -337,7 +337,7 @@ void Keybind::replaceHoldEvent(function<void(vector<void *> &)> newEvent, vector
                            "Keybind::replaceHoldEvent", -1, INFO));
 }
 
-void Keybind::replaceReleasedEvent(function<void(vector<void *> &)> newEvent, vector<void *> releasedElements)
+void Keybind::replaceReleasedEvent(function<void(vector<string> &)> newEvent, vector<string> releasedElements)
 {
   stack.insert(Exception(
       "Replacing released event", "Keybind::replaceReleasedEvent", -1, INFO));
@@ -345,7 +345,7 @@ void Keybind::replaceReleasedEvent(function<void(vector<void *> &)> newEvent, ve
   stack.insert(
       Exception("Saving old event to temporary location...",
                 "Keybind::replaceReleasedEvent", -1, INFO));
-  const function<void(vector<void *> &)> temp = released;
+  const function<void(vector<string> &)> temp = released;
   if (&temp != &released)
     stack.insert(
         Exception("Failed to save old event to temporary location. If "
@@ -359,7 +359,7 @@ void Keybind::replaceReleasedEvent(function<void(vector<void *> &)> newEvent, ve
   stack.insert(
       Exception("Saving old elements to temporary location...",
                 "Keybind::replaceReleasedEvent", -1, INFO));
-  vector<void *> temp2 = releasedInputs;
+  vector<string> temp2 = releasedInputs;
   if (temp2 != releasedInputs)
     stack.insert(
         Exception("Failed to save old elements. If replacement fails, the old "
@@ -538,42 +538,42 @@ SDL_Rect *MouseInteractable::getCollisionBox(SDL_Rect *returnval)
   return collision;
 }
 
-function<void(vector<void *> &)> MouseInteractable::getLeftClickFunction(function<void(vector<void *> &)> returnval)
+function<void(vector<string> &)> MouseInteractable::getLeftClickFunction(function<void(vector<string> &)> returnval)
 {
   if (returnval != nullptr)
     returnval = lcFunc;
   return lcFunc;
 }
 
-function<void(vector<void *> &)> MouseInteractable::getRightClickFunction(function<void(vector<void *> &)> returnval)
+function<void(vector<string> &)> MouseInteractable::getRightClickFunction(function<void(vector<string> &)> returnval)
 {
   if (returnval != nullptr)
     returnval = rcFunc;
   return rcFunc;
 }
 
-function<void(vector<void *> &)> MouseInteractable::getMiddleClickFunction(function<void(vector<void *> &)> returnval)
+function<void(vector<string> &)> MouseInteractable::getMiddleClickFunction(function<void(vector<string> &)> returnval)
 {
   if (returnval != nullptr)
     returnval = mcFunc;
   return mcFunc;
 }
 
-function<void(vector<void *> &)> MouseInteractable::getLeftHoldFunction(function<void(vector<void *> &)> returnval)
+function<void(vector<string> &)> MouseInteractable::getLeftHoldFunction(function<void(vector<string> &)> returnval)
 {
   if (returnval != nullptr)
     returnval = lhFunc;
   return lhFunc;
 }
 
-function<void(vector<void *> &)> MouseInteractable::getRightHoldFunction(function<void(vector<void *> &)> returnval)
+function<void(vector<string> &)> MouseInteractable::getRightHoldFunction(function<void(vector<string> &)> returnval)
 {
   if (returnval != nullptr)
     returnval = rhFunc;
   return rhFunc;
 }
 
-function<void(vector<void *> &)> MouseInteractable::getMiddleHoldFunction(function<void(vector<void *> &)> returnval)
+function<void(vector<string> &)> MouseInteractable::getMiddleHoldFunction(function<void(vector<string> &)> returnval)
 {
   if (returnval != nullptr)
     returnval = mhFunc;

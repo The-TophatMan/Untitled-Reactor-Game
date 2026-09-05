@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-void help(const string &, vector<void *>)
+void help(vector<void *>, vector<string>)
 {
   cout << "Usage: ./SABWR [OPTION...]" << endl
        << endl
@@ -10,9 +10,9 @@ void help(const string &, vector<void *>)
        << "-F,--file    FILE     Where to log to. Defaults to the console." << endl;
 }
 
-void logTest(const string &, vector<void *> pass)
+void logTest(vector<void *> log, vector<string> input)
 {
-  Logging *logger = static_cast<Logging *>(pass[0]);
+  Logging *logger = static_cast<Logging *>(log[0]);
   logger->log("This was a triumph");
   logger->log("I'm making a note here \"Huge success\"");
   logger->log("It's hard to overstate my satisfaction");
@@ -55,11 +55,11 @@ void logTest(const string &, vector<void *> pass)
   logger->log(e);
 }
 
-void setFile(const string &output, vector<void *> pass)
+void setFile(vector<void *> log, vector<string> input)
 {
   static ofstream out; // Ensure the ofstream persists
-  out.open(output.c_str(), ios::binary);
-  Logging *logger = static_cast<Logging *>(pass[0]);
+  out.open(input[0].c_str(), ios::binary);
+  Logging *logger = static_cast<Logging *>(log[0]);
   logger->setOutput(&out);
 }
 
@@ -75,12 +75,12 @@ void addLevel(Logging *logger, string type)
     logger->addLoggingType(FATAL);
 }
 
-void logLevel(const string &level, vector<void *> pass)
+void logLevel(vector<void *> log, vector<string> input)
 {
-  Logging *logger = static_cast<Logging *>(pass[0]);
-  if (level == "NONE")
+  Logging *logger = static_cast<Logging *>(log[0]);
+  if (input[0] == "NONE")
     return;
-  if (level == "ALL")
+  if (input[0] == "ALL")
   {
     logger->addLoggingType(INFO);
     logger->addLoggingType(WARNING);
@@ -88,7 +88,7 @@ void logLevel(const string &level, vector<void *> pass)
     logger->addLoggingType(FATAL);
     return;
   }
-  string levelString = level;
+  string levelString = input[0];
   while (levelString.find("_AND_") != string::npos)
   {
     string type = levelString.substr(0, levelString.find("_AND_"));
@@ -98,10 +98,10 @@ void logLevel(const string &level, vector<void *> pass)
   addLevel(logger, levelString);
 }
 
-void exceptionTest(const string &, vector<void *> logging)
+void exceptionTest(vector<void *> log, vector<string> input)
 {
 
-  Logging *logger = static_cast<Logging *>(logging[0]);
+  Logging *logger = static_cast<Logging *>(log[0]);
   ExceptionStack stack;
   stack.insert(Exception("Well, here we are again", "Aperture Science Enrichment Center", 4192011, INFO));
   stack.insert(Exception("It's always such a pleasure", "Aperture Science Enrichment Center", 4192011, INFO));

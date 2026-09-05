@@ -43,10 +43,10 @@ class Keybind
 {
 private:
   SDL_KeyCode keybind;
-  function<void(vector<void *> &)>
+  function<void(vector<string> &)>
       held,      // What to do when the keybind is pushed down
       released;  // What to do when the keybind is released
-  vector<void *> // Extra arguments to provide the functions
+  vector<string> // Extra arguments to provide the functions
       heldInputs,
       releasedInputs;
   bool active;
@@ -60,23 +60,23 @@ public:
   Keybind &operator=(Keybind &&) = default;
   Keybind(const SDL_KeyCode key,
           Uint16 modifier = 0,
-          function<void(vector<void *> &)> heldEvent = nullptr,
-          vector<void *> heldElements = {},
-          function<void(vector<void *> &)> releasedEvent = nullptr,
-          vector<void *> releasedElements = {});
+          function<void(vector<string> &)> heldEvent = nullptr,
+          vector<string> heldElements = {},
+          function<void(vector<string> &)> releasedEvent = nullptr,
+          vector<string> releasedElements = {});
 
-  function<void(vector<void *> &)> getHoldEvent(function<void(vector<void *> &)> *returnval = nullptr);
-  function<void(vector<void *> &)> getReleasedEvent(function<void(vector<void *> &)> *returnval = nullptr);
-  vector<void *> getHeldElements(vector<void *> *returnval = nullptr);
-  vector<void *> getReleasedElements(vector<void *> *returnval = nullptr);
+  function<void(vector<string> &)> getHoldEvent(function<void(vector<string> &)> *returnval = nullptr);
+  function<void(vector<string> &)> getReleasedEvent(function<void(vector<string> &)> *returnval = nullptr);
+  vector<string> getHeldElements(vector<string> *returnval = nullptr);
+  vector<string> getReleasedElements(vector<string> *returnval = nullptr);
   bool isActive(bool *returnval = nullptr);
   SDL_KeyCode getKeybind(SDL_KeyCode *returnval = nullptr);
   Uint16 getModifier(Uint16 *returnval = nullptr);
 
-  void replaceHoldEvent(function<void(vector<void *> &)> newEvent,
-                        vector<void *> holdElements);
-  void replaceReleasedEvent(function<void(vector<void *> &)> newEvent,
-                            vector<void *> releasedElements);
+  void replaceHoldEvent(function<void(vector<string> &)> newEvent,
+                        vector<string> holdElements);
+  void replaceReleasedEvent(function<void(vector<string> &)> newEvent,
+                            vector<string> releasedElements);
   void replaceModifier(const Uint16 newModifier);
   void toggleActive();
   void setActive(const bool set);
@@ -122,14 +122,14 @@ public:
 class MouseInteractable
 {
 private:
-  function<void(vector<void *> &)> // What to do when the left/middle/right mouse button is pressed/released
+  function<void(vector<string> &)> // What to do when the left/middle/right mouse button is pressed/released
       lhFunc,                      // Left Hold
       rhFunc,                      // Right Hold
       mhFunc,                      // Middle Hold
       lcFunc,                      // Left Click
       rcFunc,                      // Right Click
       mcFunc;                      // Middle Click
-  vector<void *>                   // Arguments to pass into each of the functions
+  vector<string>                   // Arguments to pass into each of the functions
       lhPass,
       rhPass,
       mhPass,
@@ -146,12 +146,12 @@ public:
   MouseInteractable &operator=(MouseInteractable &&) = default;
   MouseInteractable(
       SDL_Rect *collisionbox,
-      function<void(vector<void *> &)> leftclick = nullptr, const vector<void *> leftclickElements = {},
-      function<void(vector<void *> &)> rightclick = nullptr, const vector<void *> rightclickElements = {},
-      function<void(vector<void *> &)> middleclick = nullptr, const vector<void *> middleclickElements = {},
-      function<void(vector<void *> &)> lefthold = nullptr, const vector<void *> leftholdElements = {},
-      function<void(vector<void *> &)> righthold = nullptr, const vector<void *> rightholdElements = {},
-      function<void(vector<void *> &)> middlehold = nullptr, const vector<void *> middleholdElements = {})
+      function<void(vector<string> &)> leftclick = nullptr, const vector<string> leftclickElements = {},
+      function<void(vector<string> &)> rightclick = nullptr, const vector<string> rightclickElements = {},
+      function<void(vector<string> &)> middleclick = nullptr, const vector<string> middleclickElements = {},
+      function<void(vector<string> &)> lefthold = nullptr, const vector<string> leftholdElements = {},
+      function<void(vector<string> &)> righthold = nullptr, const vector<string> rightholdElements = {},
+      function<void(vector<string> &)> middlehold = nullptr, const vector<string> middleholdElements = {})
   {
     lhFunc = lefthold;
     rhFunc = righthold;
@@ -180,12 +180,12 @@ public:
   }
 
   SDL_Rect *getCollisionBox(SDL_Rect *returnval = nullptr);
-  function<void(vector<void *> &)> getLeftClickFunction(function<void(vector<void *> &)> returnval = nullptr);
-  function<void(vector<void *> &)> getRightClickFunction(function<void(vector<void *> &)> returnval = nullptr);
-  function<void(vector<void *> &)> getMiddleClickFunction(function<void(vector<void *> &)> returnval = nullptr);
-  function<void(vector<void *> &)> getLeftHoldFunction(function<void(vector<void *> &)> returnval = nullptr);
-  function<void(vector<void *> &)> getRightHoldFunction(function<void(vector<void *> &)> returnval = nullptr);
-  function<void(vector<void *> &)> getMiddleHoldFunction(function<void(vector<void *> &)> returnval = nullptr);
+  function<void(vector<string> &)> getLeftClickFunction(function<void(vector<string> &)> returnval = nullptr);
+  function<void(vector<string> &)> getRightClickFunction(function<void(vector<string> &)> returnval = nullptr);
+  function<void(vector<string> &)> getMiddleClickFunction(function<void(vector<string> &)> returnval = nullptr);
+  function<void(vector<string> &)> getLeftHoldFunction(function<void(vector<string> &)> returnval = nullptr);
+  function<void(vector<string> &)> getRightHoldFunction(function<void(vector<string> &)> returnval = nullptr);
+  function<void(vector<string> &)> getMiddleHoldFunction(function<void(vector<string> &)> returnval = nullptr);
 
   ExceptionStack *errorStack(ExceptionStack *errorStack = nullptr);
 };
