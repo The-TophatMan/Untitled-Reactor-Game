@@ -52,28 +52,28 @@
 using namespace std;
 using Function = function<void(const vector<void *> &, const vector<string> &)>;
 
-class CLA_Input
+class CLA_Callback
 {
 private:
   Function func;                 // The function to call
   vector<void *> internalInputs; // Any variables the function is expecting defined inside the program
-  uint externalInputs;           // The number of CLA_Inputs the function is expecting from the command line
+  size_t externalInputs;         // The number of CLA_Callbacks the function is expecting from the command line
 
 public:
-  CLA_Input(const Function func, const vector<void *> internalInputs = {}, const uint externalInputsExpected = 0);
+  CLA_Callback(const Function func, const vector<void *> internalInputs = {}, const size_t externalInputsExpected = 0);
 
-  uint getExternalInputAmount();
-  void callFunction(const vector<string> input);
+  size_t getExternalInputAmount() const;
+  void callFunction(const vector<string> input) const;
 };
 
 class CLA_Handler
 {
 private:
-  map<string, CLA_Input> arguments;
-  vector<CLA_Input> inputs;
+  map<string, CLA_Callback> arguments;
+  vector<CLA_Callback> inputs;
 
-  void appendArg(const pair<string, CLA_Input> arg);
-  int executeArg(const int argc, const char **argv, const int i, const string arg);
+  void appendArg(const string argument, const CLA_Callback input);
+  int executeArg(const int argc, char **argv, const int i, const string arg) const;
 
 public:
   CLA_Handler();
@@ -81,12 +81,11 @@ public:
   CLA_Handler(CLA_Handler &&) = default;
   CLA_Handler &operator=(const CLA_Handler &) = default;
 
-  void addArgument(const string argument, const Function func, const vector<void *> interalInputs = {}, const uint externalInputsExpected = 0);
-  void addArgument(const string argument, const CLA_Input input);
-  void addArgument(const pair<string, CLA_Input> argument);
+  void addArgument(const string argument, const Function func, const vector<void *> interalInputs = {}, const size_t externalInputsExpected = 0);
+  void addArgument(const string argument, const CLA_Callback input);
 
-  void addInput(const Function func, const vector<void *> internalInputs = {}, const uint externalInputsExpected = 0);
-  void addInput(const CLA_Input input);
+  void addInput(const Function func, const vector<void *> internalInputs = {}, const size_t externalInputsExpected = 0);
+  void addInput(const CLA_Callback input);
 
   /**
    * @brief Parses and processes command-line arguments.
@@ -94,6 +93,6 @@ public:
    * @param argc The number of command-line arguments.
    * @param argv The array of command-line arguments.
    */
-  void cycleArguments(const int argc, char **argv);
+  void cycleArguments(const int argc, char **argv) const;
 };
 #endif
