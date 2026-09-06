@@ -19,7 +19,7 @@ int main(int argc, char **argv)
   cla.addArgument("l", logLevel, {&logger}, 1);
   cla.addArgument("logging", logLevel, {&logger}, 1);
   cla.addArgument("P", exceptionTest, {&logger});
-  cla.cycleArguments(argc, argv);
+  cla.parse(argc, argv);
   // Window game("Untitled Reactor Game");
   // game.errorStack()->addPath("game");
   // logger.log(*game.errorStack());
