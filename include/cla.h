@@ -6,20 +6,25 @@
 #include <vector>
 
 using namespace std;
-using Function = function<void(const vector<void *> &, const vector<string> &)>;
 
+template <typename result, typename arguments>
+using Function = function<result(arguments)>;
+
+template <typename Func, typename internalArg>
+Function bindFunction(Func func, internalArg arguments);
+
+// Callback class to store argument function and expected items
 class CLA_Callback
 {
 private:
-  Function func;                 // The function to call
-  vector<void *> internalInputs; // Any variables the function is expecting defined inside the program
-  size_t externalInputs;         // The number of CLA_Callbacks the function is expecting from the command line
+  Function func;    // The function to call
+  size_t itemCount; // The number of items the function is expecting from the command line
 
 public:
-  CLA_Callback(const Function func, const vector<void *> internalInputs = {}, const size_t externalInputsExpected = 0);
+  CLA_Callback(Function func, size_t expectedItemCount = 0);
 
-  size_t getExternalInputAmount() const;
-  void callFunction(const vector<string> input) const;
+  size_t getItemCount() const;
+  void callFunction(const vector<string> &input) const;
 };
 
 class CLA_Handler
@@ -28,17 +33,17 @@ private:
   map<string, CLA_Callback> arguments;
   vector<CLA_Callback> positionals;
 
-  void emplace(const string argument, const CLA_Callback input);
-  int processArg(const int argc, char **argv, const int i, const string arg) const;
+  void emplace(const string &argument, const CLA_Callback &input);
+  int processArg(int argc, char **argv, int i, const string &arg) const;
 
 public:
   CLA_Handler() = default;
 
-  void addArgument(const string argument, const Function func, const vector<void *> interalInputs = {}, const size_t externalInputsExpected = 0);
-  void addArgument(const string argument, const CLA_Callback input);
+  void addArgument(const string &argument, const Function &func, size_t expectedItemCount = 0);
+  void addArgument(const string &argument, const CLA_Callback &input);
 
-  void addPositional(const Function func, const vector<void *> internalInputs = {}, const size_t externalInputsExpected = 0);
-  void addPositional(const CLA_Callback input);
+  void addPositional(const Function &func, size_t expectedItemCount = 0);
+  void addPositional(const CLA_Callback &input);
 
   /**
    * @brief Parses and processes command-line arguments.
@@ -46,6 +51,6 @@ public:
    * @param argc The number of command-line arguments.
    * @param argv The array of command-line arguments.
    */
-  void parse(const int argc, char **argv) const;
+  void parse(int argc, char **argv) const;
 };
 #endif

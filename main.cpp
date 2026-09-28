@@ -13,12 +13,12 @@ int main(int argc, char **argv)
   CLA_Handler cla;
   cla.addArgument("h", help);
   cla.addArgument("help", help);
-  cla.addArgument("f", setFile, {&logger}, 1);
-  cla.addArgument("file", setFile, {&logger}, 1);
-  cla.addArgument("p", logTest, {&logger});
-  cla.addArgument("l", logLevel, {&logger}, 1);
-  cla.addArgument("logging", logLevel, {&logger}, 1);
-  cla.addArgument("P", exceptionTest, {&logger});
+  cla.addArgument("f", bindFunction(setFile, 3), 1);
+  cla.addArgument("file", bindFunction(setFile, &logger), 1);
+  cla.addArgument("p", bindFunction(logTest, &logger));
+  cla.addArgument("l", bindFunction(logLevel, &logger), 1);
+  cla.addArgument("logging", bindFunction(logLevel, &logger), 1);
+  cla.addArgument("P", bindFunction(exceptionTest, &logger));
   cla.parse(argc, argv);
   // Window game("Untitled Reactor Game");
   // game.errorStack()->addPath("game");
